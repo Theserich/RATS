@@ -1,9 +1,9 @@
 {
-    "xkey": "target_id",
+    "xkey": "user_label_nr",
     "ykeys": [
         "fm"
     ],
-    "xlabel": "target_id",
+    "xlabel": "user_label_nr",
     "ylabels": [
         "fm"
     ],

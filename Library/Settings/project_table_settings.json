@@ -18,19 +18,19 @@
         "Display Name": "Target Id",
         "Format": "%s",
         "Multiplier": null,
-        "width": 142
+        "width": 116
     },
     "fm": {
         "Display Name": "F14C",
         "Format": "%.4f",
         "Multiplier": null,
-        "width": 101
+        "width": 82
     },
     "fm_sig": {
         "Display Name": "F14C_sig",
         "Format": "%.4f",
         "Multiplier": null,
-        "width": 102
+        "width": 112
     },
     "sample_nr": {
         "Display Name": "Sample Nr.",
@@ -48,25 +48,25 @@
         "Display Name": "Magazine",
         "Format": "%s",
         "Multiplier": null,
-        "width": 172
+        "width": 131
     },
     "user_label_nr": {
         "Display Name": "User Label Nr.",
         "Format": "%s",
         "Multiplier": null,
-        "width": 245
+        "width": 158
     },
     "c14_age": {
         "Display Name": "C14 age",
         "Format": "%.3f",
         "Multiplier": null,
-        "width": 132
+        "width": 106
     },
     "c14_age_sig": {
         "Display Name": "C14 age sig",
         "Format": "%.3f",
         "Multiplier": null,
-        "width": 357
+        "width": 136
     },
     "co2_final": {
         "Display Name": "co2_final",
@@ -108,19 +108,19 @@
         "Display Name": "research",
         "Format": "%s",
         "Multiplier": null,
-        "width": 136
+        "width": 118
     },
     "user_label": {
         "Display Name": "user_label",
         "Format": "%s",
         "Multiplier": null,
-        "width": 125
+        "width": 165
     },
     "target_pressed": {
         "Display Name": "target_pressed",
         "Format": "%s",
         "Multiplier": null,
-        "width": 167
+        "width": 165
     },
     "priority": {
         "Display Name": "priority",
@@ -132,13 +132,13 @@
         "Display Name": "User decr 1",
         "Format": "%s",
         "Multiplier": null,
-        "width": 355
+        "width": 135
     },
     "user_desc2": {
         "Display Name": "user_desc2",
         "Format": "%s",
         "Multiplier": null,
-        "width": 379
+        "width": 131
     },
     "last_name": {
         "Display Name": "last_name",

@@ -5,11 +5,12 @@ from Library.comset import read_settings, write_settings
 from PyQt5.uic import loadUi
 from numpy import array, where
 import os
+from pathlib import Path
 from json import dump as dump_js, load as load_js
 
 
 class SettingsWindow(QMainWindow):
-	def __init__(self,data,parent=None,path='UIFiles/plotSettingsWindow.ui'):
+	def __init__(self,data,parent=None,path=Path('UIFiles/plotSettingsWindow.ui')):
 		self.allcolors = ['orange', 'red', 'blue', 'green',
 						  'mediumspringgreen', 'forestgreen', 'yellowgreen',
 						  'khaki', 'darkorange', 'indianred']
@@ -102,7 +103,7 @@ class SettingsWindow(QMainWindow):
 				item = QStandardItem(form)
 				item.setForeground(QColor('white'))
 				pixmap = QPixmap()
-				pixmap.load('UIFiles/Symbols/'+form + '.png')
+				pixmap.load(Path('UIFiles/Symbols/'+form + '.png'))
 				icon = QIcon()
 				icon.addPixmap(pixmap)
 				item.setIcon(icon)

@@ -1,14 +1,14 @@
 {
     "startProj": [
-        2578,
-        6214
+        2577,
+        6541
     ],
     "DefMag": [
         "C200824NB",
         "C14"
     ],
-    "fontsize": 12,
+    "fontsize": 14,
     "height": 25,
-    "windowheight": 987,
-    "windowwidth": 1680
+    "windowheight": 1116,
+    "windowwidth": 1866
 }

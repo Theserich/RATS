@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QGridLayout, QWidget, QFileDialog, QAction
 from matplotlib.pyplot import Figure
-from Library.timer import timer
+from pathlib import Path
 from PyQt5.Qt import QComboBox, Qt, QKeySequence
 from PyQt5.uic import loadUi
 from Library.comset import read_settings
@@ -11,7 +11,7 @@ from Library.ProjectViewer.Plotsettings import SettingsWindow
 
 
 class PlotWindow(QMainWindow):
-    def __init__(self,data, path='UIFiles/Project_plotter.ui', parent=None):
+    def __init__(self,data, path=Path('UIFiles/Project_plotter.ui'), parent=None):
         self.data = data
         self.widget = parent
         self.settingsWindow = False
