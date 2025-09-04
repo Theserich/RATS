@@ -107,8 +107,16 @@ class WidgetMain(QMainWindow):
 		self.searchButton.clicked.connect(self.searchSample)
 
 		set_label_size(self,'Mainwindow')
-		#fontsize = read_settings('display_settings')['fontsize']
 
+	def showEvent(self, event):
+		super().showEvent(event)
+		# Connect screenChanged once, after the window handle exists
+		handle = self.windowHandle()
+		if handle and not hasattr(self, '_screen_changed_connected'):
+			handle.screenChanged.connect(
+				lambda screen: set_label_size(self, 'Mainwindow')
+			)
+			self._screen_changed_connected = True
 	def getConnectionLine(self):
 		self.scanner.checkConnection()
 		sample = self.scanner.readLine()
@@ -122,16 +130,6 @@ class WidgetMain(QMainWindow):
 		samplenr = self.sampleEdit.text()
 		samplenr.replace(" ", "")
 		samplenr = samplenr.split('.')[0]
-		#if '.' in samplenr:
-		#	count=0
-		#	for c in samplenr:
-		#		if c == '.':
-		#			count+=1
-		#	if count ==1:
-		#		target_id = samplenr+'.1'
-		#	else:
-		#		target_id = samplenr
-		#else:
 		target_id = str(samplenr)+'.1.1'
 		project_nr,user_nr = self.get_project_nr(target_id)
 		userindex = self.UserNrBox.findText(str(user_nr))
@@ -221,8 +219,7 @@ class WidgetMain(QMainWindow):
 		if self.user_changing:
 			return
 		self.user_changing = True
-		text = combobox.currentText()
-		index = combobox.findText(text)
+		index = combobox.currentIndex()
 		try:
 			self.user_id = int(self.user_nr[index])
 			self.UserNrBox.setCurrentIndex(index)

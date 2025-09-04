@@ -26,8 +26,12 @@ class ExtendedComboBox(QComboBox):
 
     # on selection of an item from the completer, select the corresponding item from combobox
     def on_completer_activated(self, text):
-        #print(self.pFilterModel.rowsInserted())
-        if text:
-            index = self.findText(text)
-            self.setCurrentIndex(index)
+        if not text:
+            return
+        completion_index = self.completer.currentIndex()
+        if not completion_index.isValid():
+            return
+        source_index = self.pFilterModel.mapToSource(completion_index)
+        row = source_index.row()
+        self.setCurrentIndex(row)
 
