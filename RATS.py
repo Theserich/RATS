@@ -4,6 +4,8 @@ from Library.ProjectViewer.MainWindow import WidgetMain
 from pyqtgraph.Qt import QtCore
 from pathlib import Path
 import matplotlib
+import faulthandler
+faulthandler.enable()
 matplotlib.use("Qt5Agg")
 
 if __name__ == '__main__':
