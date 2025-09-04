@@ -12,7 +12,7 @@ DIST_DIR = SPEC_DIR / "dist"
 datas = []
 
 a = Analysis(
-    ['main.py'],
+    ['RATS.py'],
     pathex=[str(SPEC_DIR)],
     binaries=[],
     datas=[],
