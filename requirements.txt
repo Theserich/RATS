@@ -9,3 +9,4 @@ scipy>=1.7.0
 joblib>=1.0.0
 XlsxWriter>=3.0.0
 mysql-connector>= 2.2.9
+serial>=0.0.97
