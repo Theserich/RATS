@@ -1,0 +1,24 @@
+{
+    "xkey": "target_id",
+    "ykeys": [
+        "fm"
+    ],
+    "xlabel": "target_id",
+    "ylabels": [
+        "fm"
+    ],
+    "xmin": "auto",
+    "xmax": "auto",
+    "ymins": [
+        "auto"
+    ],
+    "ymaxs": [
+        "auto"
+    ],
+    "ycolors": [
+        "red"
+    ],
+    "forms": [
+        "x"
+    ]
+}
