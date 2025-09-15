@@ -17,19 +17,16 @@ from Library.DBconnect.DBconnect import DBconnect
 from Library.ProjectViewer.windowSizes import set_label_size,resize_window
 from Library.ProjectViewer.USBConnector import USBConnector
 
+standardSettings = {'startProj': [2913, 9214], 'DefMag': ['C200824NB', 'C14'], 'fontsize': 15, 'height': 25, 'windowheight': 1065, 'windowwidth': 1487, 'userbool':True}
+
 
 class WidgetMain(QMainWindow):
 	def __init__(self, path):
-
-		self.settings = read_settings('display_settings')
-		[user_nr,project_nr] = self.settings['startProj']
 		self.settingsName = 'project_table_settings'
 		super(WidgetMain, self).__init__()
 		loadUi(path, self)
 		self.DB = DBconnect()
-		height = self.settings['windowheight']
-		width = self.settings['windowwidth']
-		self.resize(width,height)
+		self.loadSettings()
 		self.scanner = USBConnector()
 		self.checkThreadTimer = QTimer(self)
 		self.checkThreadTimer.setInterval(500)  # .5 seconds
@@ -61,11 +58,10 @@ class WidgetMain(QMainWindow):
 		self.widthButton.clicked.connect(self.autoAdjustWidths)
 
 		self.user_checkbox = QCheckBox()
-		self.user_checkbox.setChecked(True)
+		self.user_checkbox.setChecked(self.settings['userbool'])
 		self.ProjectNrBox = ExtendedComboBox()
 		self.ProjectNameBox = ExtendedComboBox()
 
-		self.user_checkbox.setChecked(True)
 		self.ProjectNameBox.addItems(self.project_names)
 		self.ProjectNrBox.addItems(self.project_nr)
 
@@ -84,13 +80,14 @@ class WidgetMain(QMainWindow):
 		self.user_checkbox.toggled.connect(self.user_checkbox_toggled)
 		ctrlc = CopySelectedCellsAction(self)
 		self.addAction(ctrlc)
-		self.model = MyTableModel(self.table, self.DB, project_nr)
+		self.model = MyTableModel(self.table, self.DB, self.start_proj_nr)
 		self.table.setContextMenuPolicy(Qt.CustomContextMenu)
 		self.table.customContextMenuRequested.connect(self.open_Menu)
-		userindex = self.UserNrBox.findText(str(user_nr))
+		userindex = self.UserNrBox.findText(str(self.start_user_nr))
 		self.UserNrBox.setCurrentIndex(userindex)
-		project_index = self.ProjectNrBox.findText(str(project_nr))
-		self.ProjectNrBox.setCurrentIndex(project_index)
+		#project_index = self.ProjectNrBox.findText(str(self.start_proj_nr))
+		#print(project_index)
+		#self.ProjectNrBox.setCurrentIndex(project_index)
 		self.plotButton.clicked.connect(self.openPLotter)
 		self.table.setModel(self.model)
 
@@ -98,15 +95,34 @@ class WidgetMain(QMainWindow):
 		self.table.setHorizontalHeader(header)
 		redrawSignal.signal.connect(self.model.redrawTable)
 		redrawSignal.signal.connect(lambda: set_label_size(self,'Mainwindow'))
+		redrawSignal.signal.connect(lambda: set_label_size(self,'Mainwindow'))
 		self.model.redrawTable()
 		h = self.UserNrBox.height()
 		w = self.UserNameBox.width()
+
 		self.groupBox.setMaximumHeight(8*h)
 		self.groupBox.setMaximumWidth(5* w)
 		self.projectLabel.setText(self.ProjectNameBox.currentText())
 		self.searchButton.clicked.connect(self.searchSample)
-
+		self.user_checkbox_toggled()
 		set_label_size(self,'Mainwindow')
+
+	def loadSettings(self):
+		self.settings = read_settings('display_settings')
+		if self.settings is None:
+			self.settings = standardSettings
+		for key in self.settings.keys():
+			if key not in standardSettings:
+				self.settings.pop(key)
+		for key in standardSettings.keys():
+			if key not in self.settings.keys():
+				self.settings[key] = standardSettings[key]
+		[self.start_user_nr, self.start_proj_nr] = self.settings['startProj']
+		self.selected_project = int(self.start_proj_nr)
+		height = self.settings['windowheight']
+		width = self.settings['windowwidth']
+		self.resize(width,height)
+
 
 	def showEvent(self, event):
 		super().showEvent(event)
@@ -149,6 +165,8 @@ class WidgetMain(QMainWindow):
 		self.settings = read_settings('display_settings')
 		self.settings['windowheight'] = h
 		self.settings['windowwidth'] = w
+		self.settings['startProj'] = [self.user_id, self.selected_project]
+		self.settings['userbool'] = self.user_checkbox.isChecked()
 		write_settings(self.settings, 'display_settings')
 		redrawSignal.signal.disconnect(self.model.redrawTable)
 		super().closeEvent(event)
@@ -213,6 +231,7 @@ class WidgetMain(QMainWindow):
 			self.ProjectNameBox.setCurrentIndex(nameindex)
 			self.ProjectNrBox.setCurrentIndex(nrindex)
 			self.user_changing = False
+		print('test')
 		self.projectLabel.setText(self.ProjectNameBox.currentText())
 
 	def user_field_changed(self, combobox):

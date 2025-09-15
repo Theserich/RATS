@@ -119,7 +119,6 @@ class DBconnect():
 			print(file)
 			tree.write(file)
 		except:
-			print("PASSINWRITE")
 			pass
 
 	def checkExisting(self,table,condition,parameters):

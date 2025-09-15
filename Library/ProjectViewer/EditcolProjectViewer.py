@@ -23,7 +23,6 @@ class better_table_edit:
         self.table_settings = read_settings(self.settingsName)
         self.columns = self.table_settings['columns']
         self.fill_tablevals()
-
         self.possible = Mainwindow.model.data.keys()
         self.selected = self.columns
         self.__show()
@@ -103,8 +102,6 @@ class better_table_edit:
             self.model.layoutChanged.emit()
             return False, e
 
-
-
     def apply(self):
         check, status = self.check_settings()
         if check:
@@ -116,7 +113,7 @@ class better_table_edit:
             msg.setInformativeText(status)
             msg.setWindowTitle("Error")
             msg.exec_()
-            print('Error:',status)
+
 
     def __remove(self, widget):
         for id in reversed(widget.tableWidget.selectionModel().selectedRows()):

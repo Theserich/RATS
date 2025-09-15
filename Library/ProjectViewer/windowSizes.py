@@ -23,7 +23,6 @@ def save_size(window,name):
     write_settings(settings, path)
 
 def set_label_size(window,name,factor=1):
-    print('LABELSHIT')
     fontsize = read_settings('display_settings')['fontsize'] * factor
     font = QFont()
     font.setPointSize(int(fontsize * 0.8))
