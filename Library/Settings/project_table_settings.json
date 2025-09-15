@@ -24,7 +24,7 @@
         "Display Name": "F14C",
         "Format": "%.4f",
         "Multiplier": null,
-        "width": 84
+        "width": 168
     },
     "fm_sig": {
         "Display Name": "F14C_sig",

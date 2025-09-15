@@ -16,6 +16,8 @@ from Library.ProjectViewer.Header import HeaderView
 from Library.DBconnect.DBconnect import DBconnect
 from Library.ProjectViewer.windowSizes import set_label_size,resize_window
 from Library.ProjectViewer.USBConnector import USBConnector
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from pandas import DataFrame
 
 standardSettings = {'startProj': [2913, 9214], 'DefMag': ['C200824NB', 'C14'], 'fontsize': 15, 'height': 25, 'windowheight': 1065, 'windowwidth': 1487, 'userbool':True}
 
@@ -89,6 +91,7 @@ class WidgetMain(QMainWindow):
 		#print(project_index)
 		#self.ProjectNrBox.setCurrentIndex(project_index)
 		self.plotButton.clicked.connect(self.openPLotter)
+		self.actionSave_to_xlsx.triggered.connect(self.save_to_excel)
 		self.table.setModel(self.model)
 
 		header = HeaderView(self.table)
@@ -106,6 +109,29 @@ class WidgetMain(QMainWindow):
 		self.searchButton.clicked.connect(self.searchSample)
 		self.user_checkbox_toggled()
 		set_label_size(self,'Mainwindow')
+
+	def save_to_excel(self):
+		# Open save dialog
+		file_path, _ = QFileDialog.getSaveFileName(
+			self,
+			"Save as Excel",
+			"",
+			"Excel Files (*.xlsx);;All Files (*)"
+		)
+		if not file_path:  # user cancelled
+			return
+		try:
+			# Convert dict -> DataFrame -> Excel
+			datadict = self.model.data.copy()
+			exceldata = {}
+			for i, column in enumerate(self.model.columns):
+				exceldata[self.model.headers[i]] = datadict[column]
+			df = DataFrame.from_dict(exceldata)
+			df.to_excel(file_path, index=False)
+			QMessageBox.information(self, "Success", f"Data saved to:\n{file_path}")
+		except Exception as e:
+			QMessageBox.critical(self, "Error", f"Failed to save Excel file:\n{e}")
+
 
 	def loadSettings(self):
 		self.settings = read_settings('display_settings')
