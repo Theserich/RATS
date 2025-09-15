@@ -8,5 +8,6 @@ pytest>=7.0.0
 scipy>=1.7.0
 joblib>=1.0.0
 XlsxWriter>=3.0.0
-mysql-connector>= 2.2.9
+mysql-connector>=2.2.9
 pyserial>=3.5
+keyring>=24.3.1

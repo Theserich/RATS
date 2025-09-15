@@ -1,7 +1,7 @@
 {
     "startProj": [
-        2584,
-        6342
+        2577,
+        6525
     ],
     "DefMag": [
         "C200824NB",
@@ -11,5 +11,5 @@
     "height": 25,
     "windowheight": 1285,
     "windowwidth": 1360,
-    "userbool": true
+    "userbool": false
 }

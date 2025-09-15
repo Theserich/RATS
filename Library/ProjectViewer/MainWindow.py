@@ -231,7 +231,6 @@ class WidgetMain(QMainWindow):
 			self.ProjectNameBox.setCurrentIndex(nameindex)
 			self.ProjectNrBox.setCurrentIndex(nrindex)
 			self.user_changing = False
-		print('test')
 		self.projectLabel.setText(self.ProjectNameBox.currentText())
 
 	def user_field_changed(self, combobox):
