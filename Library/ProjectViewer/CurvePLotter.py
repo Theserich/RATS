@@ -255,9 +255,3 @@ class CurveWindow(QMainWindow):
         }
         write_settings(settings, 'curve_settings')
 
-
-
-
-
-
-
