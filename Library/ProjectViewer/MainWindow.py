@@ -18,7 +18,7 @@ from Library.ProjectViewer.windowSizes import set_label_size,resize_window
 from Library.ProjectViewer.USBConnector import USBConnector
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from pandas import DataFrame
-
+from Library.ProjectViewer.CurvePLotter import CurveWindow
 standardSettings = {'startProj': [2913, 9214], 'DefMag': ['C200824NB', 'C14'], 'fontsize': 15, 'height': 25, 'windowheight': 1065, 'windowwidth': 1487, 'userbool':True}
 
 
@@ -91,6 +91,7 @@ class WidgetMain(QMainWindow):
 		#print(project_index)
 		#self.ProjectNrBox.setCurrentIndex(project_index)
 		self.plotButton.clicked.connect(self.openPLotter)
+		self.curveButton.clicked.connect(lambda: CurveWindow(parent=self))
 		self.actionSave_to_xlsx.triggered.connect(self.save_to_excel)
 		self.table.setModel(self.model)
 
@@ -237,6 +238,7 @@ class WidgetMain(QMainWindow):
 	def openPLotter(self):
 		self.plotWindow = PlotWindow(self.model.data, parent=self)
 		self.plotWindow.show()
+
 
 	def user_checkbox_toggled(self):
 		checked = self.user_checkbox.isChecked()
