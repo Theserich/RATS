@@ -18,7 +18,7 @@ class CurveWindow(QMainWindow):
     def __init__(self, path=Path("UIFiles/CalibrationPlot.ui"), parent=None):
         self.sortkeys = ['sample_nr', 'target_nr', 'prep_nr', 'project', 'project_nr', 'magazine', 'user_label', 'last_name',
                          'target_pressed', 'bp', 'treeid', 'user_label_nr', 'c14_age', 'c14_age_sig', 'fm', 'fm_sig', 'dc13',
-                         'dc13_sig', 'target_id']
+                         'dc13_sig', 'target_id','co2_final']
         self.widget = parent
         self.DB = parent.DB
         self.settingsWindow = False
@@ -50,11 +50,6 @@ class CurveWindow(QMainWindow):
                 self.sortBox.setCurrentIndex(self.sortkeys.index(settings["sortkey"]))
 
     def initialize_plot(self):
-        p = self.plot_widget.palette()
-        p.setColor(self.backgroundRole(), Qt.white)
-        self.setPalette(p)
-
-        # get existing layout from UI (instead of overwriting with a new one)
         plot_layout = self.plot_widget.layout()
         if plot_layout is None:
             plot_layout = QVBoxLayout(self.plot_widget)
@@ -149,8 +144,9 @@ class CurveWindow(QMainWindow):
                 target_id = dataset["target_id"][index]
                 project = dataset["project"][index]
                 magazine = dataset["magazine"][index]
+                c02 = dataset["co2_final"][index]
                 sel.annotation.set_text(
-                    f"Project: {project}, target_id: {target_id}, Magazine: {magazine}"
+                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\nC0$_2$: {c02}"
                 )
                 annotations.append(sel.annotation)
 
@@ -186,8 +182,9 @@ class CurveWindow(QMainWindow):
                 target_id = dataset["target_id"][index]
                 project = dataset["project"][index]
                 magazine = dataset["magazine"][index]
+                c02 = dataset["co2_final"][index]
                 sel.annotation.set_text(
-                    f"Project: {project}, target_id: {target_id}, Magazine: {magazine}"
+                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\nC0$_2$: {c02}"
                 )
                 annotations.append(sel.annotation)
 
@@ -218,8 +215,8 @@ class CurveWindow(QMainWindow):
             t1_ = 1950 - self.t1
         t0 = min(t0_, t1_)
         t1 = max(t0_, t1_)
-        query = (f"SELECT sample_nr as sample_nr,target_nr as target_nr,prep_nr, project,project_nr ,magazine,user_label,"
-                 f"last_name, target_pressed, cast(substring_index(user_label_nr,'|',1) as decimal(6,1)) as bp,"
+        query = (f"SELECT sample_nr, target_nr, prep_nr, project,project_nr ,magazine,user_label,"
+                 f"last_name, target_pressed,co2_final, cast(substring_index(user_label_nr,'|',1) as decimal(6,1)) as bp,"
                  f" substring_index(user_label,'|',1) as treeid,"
                  f"  user_label_nr ,c14_age,c14_age_sig, fm as fm,fm_sig as fm_sig, dc13, dc13_sig FROM db_ams.target_v"
                  f" WHERE research='calibration' and stop={int(stopped)} and c14_age is not null and CONVERT(user_label_nr,UNSIGNED INTEGER) >= {t0}"
