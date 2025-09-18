@@ -2,6 +2,7 @@ from numpy import array, where, exp, log, unique, sort
 from copy import copy
 from pandas import read_excel
 from pathlib import Path
+from Library.timer import timer
 
 def calcD14C(df):
     newdf = {}
@@ -33,6 +34,7 @@ def convertCalendarToBCE(t,bp=False):
         return 1950-t
     return res
 
+@timer
 def groupdf(df, sortkey):
     data = {}
     for key in df.keys():

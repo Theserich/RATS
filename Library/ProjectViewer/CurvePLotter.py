@@ -1,34 +1,53 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QGridLayout, QWidget, QFileDialog, QAction
-from matplotlib.pyplot import Figure
+from matplotlib.pyplot import Figure, cm
 from pathlib import Path
 from Library.comset import *
-from PyQt5.Qt import QComboBox, Qt, QKeySequence
 from PyQt5.uic import loadUi
 from Library.comset import read_settings
 import matplotlib.colors as colors
+from matplotlib.colors import ListedColormap
+from Library.timer import timer
 from Library.helperFunctions import *
+from numpy import where, array, sort, linspace,argsort, full
 from pandas import DataFrame
 from matplotlib.ticker import FixedLocator, FuncFormatter
 from matplotlib.backends.backend_qt5agg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 import mplcursors
 
+import math
+
+class NaNSentinel:
+    def __repr__(self):
+        return "NaN"
+    def __eq__(self, other):
+        return isinstance(other, NaNSentinel)
+    def __hash__(self):
+        return hash("NaNSentinel")
+
+NAN_KEY = NaNSentinel()
+
+allcolormaps = ['Set1','Reds','cool', 'coolwarm', 'gray', 'hot','hot_r', 'jet''jet_r' 'nipy_spectral','nipy_spectral_r', 'ocean']
 
 
 class CurveWindow(QMainWindow):
     def __init__(self, path=Path("UIFiles/CalibrationPlot.ui"), parent=None):
         self.sortkeys = ['sample_nr', 'target_nr', 'prep_nr', 'project', 'project_nr', 'magazine', 'user_label', 'last_name',
                          'target_pressed', 'bp', 'treeid', 'user_label_nr', 'c14_age', 'c14_age_sig', 'fm', 'fm_sig', 'dc13',
-                         'dc13_sig', 'target_id','co2_final']
+                         'dc13_sig', 'target_id','co2_final','rel err']
+        self.standardsettings = {'window': {'size': [2116, 1112], 'pos': [1717, 18]}, 't0': 1000, 't1': 2000, 'bp': False, 'stopped': False, 'sortkey': 'c14_age_sig','colormap':'nipy_spectral'}
         self.widget = parent
         self.DB = parent.DB
+
         self.settingsWindow = False
         super(QWidget, self).__init__(parent)
         loadUi(path, self)
-        self.load_settings()
+
         self.intcalData = getIntcalData()
         self.sortBox.addItems(self.sortkeys)
-        self.sortBox.setCurrentIndex(self.sortkeys.index('treeid'))
+        self.colorBox.addItems(allcolormaps)
+        self.load_settings()
         self.sortBox.currentIndexChanged.connect(self.update_params_and_redraw)
+        self.colorBox.currentIndexChanged.connect(self.update_params_and_redraw)
         self.t0_edit.editingFinished.connect(self.update_params_and_redraw)
         self.t1_edit.editingFinished.connect(self.update_params_and_redraw)
         self.BP_checkBox.stateChanged.connect(self.update_params_and_redraw)
@@ -42,12 +61,17 @@ class CurveWindow(QMainWindow):
         if settings is not None:
             self.resize(*settings["window"]["size"])
             self.move(*settings["window"]["pos"])
-            self.t0_edit.setValue(settings["t0"])
+            self.t0_edit.setValue(settings.get("t0",self.standardsettings['t0']))
             self.t1_edit.setValue(settings["t1"])
             self.BP_checkBox.setChecked(settings["bp"])
             self.stopped_checkbox.setChecked(settings["stopped"])
+            sortkey = settings.get("sortkey",self.standardsettings['sortkey'])
             if settings["sortkey"] in self.sortkeys:
-                self.sortBox.setCurrentIndex(self.sortkeys.index(settings["sortkey"]))
+                self.sortBox.setCurrentIndex(self.sortkeys.index(sortkey))
+                index = self.sortBox.currentIndex()
+            colormap = settings.get("colormap",self.standardsettings['colormap'])
+            if colormap in allcolormaps:
+                self.colorBox.setCurrentIndex(allcolormaps.index(colormap))
 
     def initialize_plot(self):
         plot_layout = self.plot_widget.layout()
@@ -55,7 +79,7 @@ class CurveWindow(QMainWindow):
             plot_layout = QVBoxLayout(self.plot_widget)
             self.plot_widget.setLayout(plot_layout)
 
-        self.fig = Figure(figsize=(16, 9))
+        self.fig = Figure(figsize=(16,16))
         self.canvas = FigureCanvas(self.fig)
         self.toolbar = NavigationToolbar(self.canvas, self)
 
@@ -73,8 +97,12 @@ class CurveWindow(QMainWindow):
         self.bp = self.BP_checkBox.isChecked()
         self.sortkey = self.sortBox.currentText()
         self.stopped = self.stopped_checkbox.isChecked()
+        self.colormap = self.colorBox.currentText()
+        self.df = self.getData()
+        self.stoppeddf = self.getData(stopped=True)
         self.draw_plot()
 
+    @timer
     def draw_plot(self):
         """Main plotting logic (adapted from your standalone script)."""
         # clear previous
@@ -88,11 +116,6 @@ class CurveWindow(QMainWindow):
         alph = 0.7
         markeredgecolor = "w"
         capsize = 3
-
-
-        # get data
-        df = self.getData()
-        df = calcD14C(df)
         intcaldf = self.intcalData.copy()
         searcht0 = min(self.t0, self.t1)
         searcht1 = max(self.t0, self.t1)
@@ -101,9 +124,7 @@ class CurveWindow(QMainWindow):
         ind = where((intcaldf['Time'] > searcht0) & (intcaldf['Time'] < searcht1))[0]
         for key in intcaldf.keys():
             intcaldf[key] = intcaldf[key][ind]
-
-
-        data = groupdf(df, sortkey=self.sortkey)
+        data = groupdf(self.df, sortkey=self.sortkey)
 
         fmts = ["^", "D", "x", "p", "o"]
         allcolors = [f"C{i}" for i in range(10)]
@@ -114,12 +135,10 @@ class CurveWindow(QMainWindow):
 
         # stopped data
         if self.stopped:
-            stoppeddf = self.getData(stopped=True)
-            stoppeddf = calcD14C(stoppeddf)
             y, y_sig, years = (
-                stoppeddf["d14C"],
-                stoppeddf["d14C_sig"],
-                1950 - stoppeddf["bp"],
+                self.stoppeddf["d14C"],
+                self.stoppeddf["d14C_sig"],
+                1950 - self.stoppeddf["bp"],
             )
             errorbar = ax.errorbar(
                 convertCalendarToBCE(years),
@@ -135,9 +154,8 @@ class CurveWindow(QMainWindow):
             )
             cursor = mplcursors.cursor(errorbar.lines[0], hover=True)
             cursors.append(cursor)
-
             @cursor.connect("add")
-            def on_add(sel, dataset=stoppeddf):
+            def on_add(sel, dataset=self.stoppeddf):
                 for annotation in annotations:
                     annotation.set_visible(False)
                 index = sel.index
@@ -145,14 +163,57 @@ class CurveWindow(QMainWindow):
                 project = dataset["project"][index]
                 magazine = dataset["magazine"][index]
                 c02 = dataset["co2_final"][index]
+                relerr = dataset["rel err"][index]
                 sel.annotation.set_text(
-                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\nC0$_2$: {c02}"
+                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n relative err: {relerr:.1f}‰\nC0$_2$: {c02}"
                 )
                 annotations.append(sel.annotation)
 
-        # main grouped data
-        for i, key in enumerate(data):
-            colindex = i % ncolors
+        y, y_sig, years = self.df["d14C"], self.df["d14C_sig"], 1950 - self.df["bp"]
+        errorbar = ax.errorbar(
+            convertCalendarToBCE(years),
+            y,
+            yerr=y_sig,
+            fmt='o',
+            capsize=capsize,
+            label=key,
+            ecolor='k',
+            color='k',
+            alpha=0,
+            markerfacecolor=markeredgecolor,
+            markersize=markersize,
+        )
+        errorbar.dataset = self.df
+        cursor = mplcursors.cursor(errorbar.lines[0], hover=True)
+        cursors.append(cursor)
+        @cursor.connect("add")
+        def on_add(sel,dataset=self.df):
+            for annotation in annotations:
+                annotation.set_visible(False)
+            index = sel.index
+            print(index)
+            target_id = dataset["target_id"][index]
+            project = dataset["project"][index]
+            magazine = dataset["magazine"][index]
+            c02 = dataset["co2_final"][index]
+            relerr = dataset["rel err"][index]
+            sel.annotation.set_text(
+                f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n relative err: {relerr:.1f}‰\nC0$_2$: {c02}"
+            )
+            annotations.append(sel.annotation)
+
+        def sort_key(x):
+            return (1, 0) if x is NAN_KEY else (0, x)
+        sortedkeys = sorted(data.keys(), key=sort_key)
+
+        num_colors = len(sortedkeys)
+        colormap = cm.__dict__[self.colormap]
+        # Create a ListedColormap with discrete colors
+        allcolors = colormap(linspace(0, 1, num_colors))
+        # convert to hex if needed
+        allcolors = [colors.to_hex(c) for c in allcolors]
+        for i, key in enumerate(sortedkeys):
+            colindex = i % num_colors
             fmtindex = i % len(fmts)
             dat = data[key]
             color = allcolors[colindex]
@@ -171,24 +232,6 @@ class CurveWindow(QMainWindow):
                 markerfacecolor=markeredgecolor,
                 markersize=markersize,
             )
-            cursor = mplcursors.cursor(errorbar.lines[0], hover=True)
-            cursors.append(cursor)
-
-            @cursor.connect("add")
-            def on_add(sel, dataset=dat):
-                for annotation in annotations:
-                    annotation.set_visible(False)
-                index = sel.index
-                target_id = dataset["target_id"][index]
-                project = dataset["project"][index]
-                magazine = dataset["magazine"][index]
-                c02 = dataset["co2_final"][index]
-                sel.annotation.set_text(
-                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\nC0$_2$: {c02}"
-                )
-                annotations.append(sel.annotation)
-
-        # add intcal band
         ax.fill_between(
             convertCalendarToBCE(intcaldf["years"]),
             intcaldf["delta"] - intcaldf["delta_sig"],
@@ -202,9 +245,8 @@ class CurveWindow(QMainWindow):
         ax.xaxis.set_major_formatter(FuncFormatter(CE_BCE_format))
         ax.set_ylabel(r"$\Delta^{14}$C (‰)")
         ax.grid(ls=":")
-
-        # redraw
         self.canvas.draw()
+
 
     def getData(self,stopped=False):
         if self.bp:
@@ -236,6 +278,8 @@ class CurveWindow(QMainWindow):
         retdf['target_id'] = [str(i) + '.' + str(j) + '.' + str(k) for i, j, k in
                               zip(df['sample_nr'], df['prep_nr'], df['target_nr'])]
         retdf['target_id'] = array(retdf['target_id'])
+        retdf = calcD14C(retdf)
+        retdf['rel err'] = retdf['fm_sig'] / retdf['fm']*1000
         return retdf
 
     def closeEvent(self, event):
@@ -249,6 +293,7 @@ class CurveWindow(QMainWindow):
             "bp": self.BP_checkBox.isChecked(),
             "stopped": self.stopped_checkbox.isChecked(),
             "sortkey": self.sortBox.currentText(),
+            "colormap": self.colorBox.currentText()
         }
         write_settings(settings, 'curve_settings')
 
