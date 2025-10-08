@@ -5,6 +5,7 @@ from Library.comset import *
 from PyQt5.uic import loadUi
 from Library.comset import read_settings
 import matplotlib.colors as colors
+from matplotlib import collections
 from matplotlib.colors import ListedColormap
 from Library.timer import timer
 from Library.helperFunctions import *
@@ -26,7 +27,7 @@ class NaNSentinel:
 
 NAN_KEY = NaNSentinel()
 
-allcolormaps = ['Set1','Reds','cool', 'coolwarm', 'gray', 'hot','hot_r', 'jet''jet_r' 'nipy_spectral','nipy_spectral_r', 'ocean']
+allcolormaps = ['Set1','Reds','cool', 'coolwarm', 'gray', 'hot','hot_r', 'jet','jet_r', 'nipy_spectral','nipy_spectral_r', 'ocean']
 
 
 class CurveWindow(QMainWindow):
@@ -140,8 +141,12 @@ class CurveWindow(QMainWindow):
                 self.stoppeddf["d14C_sig"],
                 1950 - self.stoppeddf["bp"],
             )
+            if self.bp:
+                x = 1950-years
+            else:
+                x = convertCalendarToBCE(years)
             errorbar = ax.errorbar(
-                convertCalendarToBCE(years),
+                x,
                 y,
                 yerr=y_sig,
                 fmt=".",
@@ -170,28 +175,18 @@ class CurveWindow(QMainWindow):
                 annotations.append(sel.annotation)
 
         y, y_sig, years = self.df["d14C"], self.df["d14C_sig"], 1950 - self.df["bp"]
-        errorbar = ax.errorbar(
-            convertCalendarToBCE(years),
-            y,
-            yerr=y_sig,
-            fmt='o',
-            capsize=capsize,
-            label=key,
-            ecolor='k',
-            color='k',
-            alpha=0,
-            markerfacecolor=markeredgecolor,
-            markersize=markersize,
-        )
-        errorbar.dataset = self.df
-        cursor = mplcursors.cursor(errorbar.lines[0], hover=True)
+        x = convertCalendarToBCE(years) if self.bp else 1950 - years
+        scatter = ax.scatter(x,y,alpha=0)
+        scatter.dataset = self.df
+        def only_points(sel):
+            return isinstance(sel.artist, collections.PathCollection)
+        cursor = mplcursors.cursor(scatter, hover=True)
         cursors.append(cursor)
         @cursor.connect("add")
         def on_add(sel,dataset=self.df):
             for annotation in annotations:
                 annotation.set_visible(False)
             index = sel.index
-            print(index)
             target_id = dataset["target_id"][index]
             project = dataset["project"][index]
             magazine = dataset["magazine"][index]
@@ -204,7 +199,13 @@ class CurveWindow(QMainWindow):
 
         def sort_key(x):
             return (1, 0) if x is NAN_KEY else (0, x)
-        sortedkeys = sorted(data.keys(), key=sort_key)
+        if self.sortkey == "treeid" or self.sortkey == "project" or self.sortkey == "project_np":
+            bps = [min(data[key]['bp']) for key in data.keys()]
+            sortind = argsort(bps)
+            keys_list = list(data.keys())
+            sortedkeys = [keys_list[i] for i in sortind]
+        else:
+            sortedkeys = sorted(data.keys(), key=sort_key)
 
         num_colors = len(sortedkeys)
         colormap = cm.__dict__[self.colormap]
@@ -218,10 +219,19 @@ class CurveWindow(QMainWindow):
             dat = data[key]
             color = allcolors[colindex]
             ecolor = colors.to_rgba(color, alph)
-            y, y_sig, years = dat["d14C"], dat["d14C_sig"], 1950 - dat["bp"]
-
+            #y, y_sig, years = dat["d14C"], dat["d14C_sig"], 1950 - dat["bp"]
+            #x = convertCalendarToBCE(years) if self.bp else 1950 - years
+            y, y_sig, years = (
+                dat["d14C"],
+                dat["d14C_sig"],
+                1950 - dat["bp"],
+            )
+            if self.bp:
+                x = 1950 - years
+            else:
+                x = convertCalendarToBCE(years)
             errorbar = ax.errorbar(
-                convertCalendarToBCE(years),
+                x,
                 y,
                 yerr=y_sig,
                 fmt=fmts[fmtindex],
@@ -232,8 +242,9 @@ class CurveWindow(QMainWindow):
                 markerfacecolor=markeredgecolor,
                 markersize=markersize,
             )
+        x = 1950 - intcaldf["years"] if self.bp else convertCalendarToBCE(intcaldf["years"])
         ax.fill_between(
-            convertCalendarToBCE(intcaldf["years"]),
+            x,
             intcaldf["delta"] - intcaldf["delta_sig"],
             intcaldf["delta"] + intcaldf["delta_sig"],
             alpha=0.3,
@@ -242,7 +253,10 @@ class CurveWindow(QMainWindow):
             label="IntCal20",
         )
         #ax.legend(frameon=False)
-        ax.xaxis.set_major_formatter(FuncFormatter(CE_BCE_format))
+        if self.bp:
+            ax.set_xlabel("year bp")
+        else:
+            ax.xaxis.set_major_formatter(FuncFormatter(CE_BCE_format))
         ax.set_ylabel(r"$\Delta^{14}$C (‰)")
         ax.grid(ls=":")
         self.canvas.draw()
