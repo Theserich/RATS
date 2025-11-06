@@ -103,7 +103,7 @@ class SettingsWindow(QMainWindow):
 				item = QStandardItem(form)
 				item.setForeground(QColor('white'))
 				pixmap = QPixmap()
-				pixmap.load(Path('UIFiles/Symbols/'+form + '.png'))
+				pixmap.load(str(Path('UIFiles/Symbols/'+form + '.png')))
 				icon = QIcon()
 				icon.addPixmap(pixmap)
 				item.setIcon(icon)

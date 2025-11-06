@@ -6,10 +6,8 @@ from PyQt5.uic import loadUi
 from Library.comset import read_settings
 from numpy import where, array
 import mplcursors
-
 from matplotlib.backends.backend_qt5agg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from Library.ProjectViewer.Plotsettings import SettingsWindow
-
 
 class PlotWindow(QMainWindow):
     def __init__(self,data, path=Path('UIFiles/Project_plotter.ui'), parent=None):
@@ -26,7 +24,6 @@ class PlotWindow(QMainWindow):
         self.plot()
         self.settings_button.clicked.connect(self.open_settings)
 
-
     def open_settings(self):
         self.settingsWindow = SettingsWindow(self.data,parent=self)
         self.settingsWindow.show()
@@ -35,7 +32,6 @@ class PlotWindow(QMainWindow):
         if self.settingsWindow:
             self.settingsWindow.close()
             self.settingsWindow = False
-
 
     def load_plot_settings(self):
         self.display_settings =read_settings('display_settings')
