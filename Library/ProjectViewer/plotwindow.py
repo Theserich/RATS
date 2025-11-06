@@ -5,6 +5,7 @@ from PyQt5.Qt import QComboBox, Qt, QKeySequence
 from PyQt5.uic import loadUi
 from Library.comset import read_settings
 from numpy import where, array
+import mplcursors
 
 from matplotlib.backends.backend_qt5agg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from Library.ProjectViewer.Plotsettings import SettingsWindow
@@ -142,6 +143,7 @@ class PlotWindow(QMainWindow):
             self.fig.canvas.draw()
 
     def plot_stddev_errorbars(self, x, y, x_key, y_key, i, ax):
+        annotations = []
         xsig_key = x_key + '_sig'
         ysig_key = y_key + '_sig'
         keys = self.data.keys()
@@ -156,14 +158,42 @@ class PlotWindow(QMainWindow):
                 ysig = array([float(val) for val in ysig])
             except:
                 ysig = self.data[ysig_key]
-            ax.errorbar(x, y, fmt=self.forms[i], xerr=xsig, yerr=ysig, color=self.colors[i], capsize=3)
+            errorbar = ax.errorbar(x, y, fmt=self.forms[i], xerr=xsig, yerr=ysig, color=self.colors[i], capsize=3)
+            cursor = mplcursors.cursor(errorbar.lines[0], hover=True)
+            @cursor.connect("add")
+            def on_add(sel, dataset=self.data):
+                for annotation in annotations:
+                    annotation.set_visible(False)
+                index = sel.index
+                target_id = self.data["target_id"][index]
+                project = self.data["project"][index]
+                magazine = self.data["magazine"][index]
+                c02 = self.data["co2_final"][index]
+                sel.annotation.set_text(
+                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n C0$_2$: {c02}"
+                )
+                annotations.append(sel.annotation)
         elif ysig_key in keys:
             ysig = self.data[ysig_key]
             try:
                 ysig = array([float(val) for val in ysig])
             except:
                 ysig = self.data[ysig_key]
-            ax.errorbar(x, y, fmt=self.forms[i], yerr=ysig, color=self.colors[i], capsize=3)
+            errorbar = ax.errorbar(x, y, fmt=self.forms[i], yerr=ysig, color=self.colors[i], capsize=3)
+            cursor = mplcursors.cursor(errorbar.lines[0], hover=True)
+            @cursor.connect("add")
+            def on_add(sel, dataset=self.data):
+                for annotation in annotations:
+                    annotation.set_visible(False)
+                index = sel.index
+                target_id = self.data["target_id"][index]
+                project = self.data["project"][index]
+                magazine = self.data["magazine"][index]
+                c02 = self.data["co2_final"][index]
+                sel.annotation.set_text(
+                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n C0$_2$: {c02}"
+                )
+                annotations.append(sel.annotation)
 
 
     def initialize_plot(self):
