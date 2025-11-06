@@ -175,7 +175,10 @@ class CurveWindow(QMainWindow):
                 annotations.append(sel.annotation)
 
         y, y_sig, years = self.df["d14C"], self.df["d14C_sig"], 1950 - self.df["bp"]
-        x = convertCalendarToBCE(years) if self.bp else 1950 - years
+        if self.bp:
+            x = 1950-years
+        else:
+            x = convertCalendarToBCE(years)
         scatter = ax.scatter(x,y,alpha=0)
         scatter.dataset = self.df
         def only_points(sel):
