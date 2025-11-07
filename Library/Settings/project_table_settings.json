@@ -19,19 +19,19 @@
         "Display Name": "Target Id",
         "Format": "%s",
         "Multiplier": null,
-        "width": 122
+        "width": 124
     },
     "fm": {
-        "Display Name": "F14C",
+        "Display Name": "F\u00b9\u2074C",
         "Format": "%.4f",
         "Multiplier": null,
         "width": 87
     },
     "fm_sig": {
-        "Display Name": "F14C_sig",
+        "Display Name": "F\u00b9\u2074C_sig",
         "Format": "%.4f",
         "Multiplier": null,
-        "width": 119
+        "width": 111
     },
     "sample_nr": {
         "Display Name": "Sample Nr.",
@@ -49,7 +49,7 @@
         "Display Name": "Magazine",
         "Format": "%s",
         "Multiplier": null,
-        "width": 153
+        "width": 143
     },
     "user_label_nr": {
         "Display Name": "User Label Nr.",
@@ -58,22 +58,22 @@
         "width": 169
     },
     "c14_age": {
-        "Display Name": "C14 age",
+        "Display Name": "\u00b9\u2074C age",
         "Format": "%.3f",
         "Multiplier": null,
-        "width": 114
+        "width": 120
     },
     "c14_age_sig": {
-        "Display Name": "C14 age sig",
+        "Display Name": "\u00b9\u2074C age sig",
         "Format": "%.3f",
         "Multiplier": null,
-        "width": 147
+        "width": 139
     },
     "co2_final": {
         "Display Name": "co2_final",
         "Format": "%s",
         "Multiplier": null,
-        "width": 917
+        "width": 123
     },
     "advisor": {
         "Display Name": "Advisor",
@@ -115,7 +115,7 @@
         "Display Name": "user_label",
         "Format": "%s",
         "Multiplier": null,
-        "width": 132
+        "width": 138
     },
     "target_pressed": {
         "Display Name": "target_pressed",
@@ -133,7 +133,7 @@
         "Display Name": "User decr 1",
         "Format": "%s",
         "Multiplier": null,
-        "width": 145
+        "width": 351
     },
     "user_desc2": {
         "Display Name": "user_desc2",

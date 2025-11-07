@@ -1,24 +1,36 @@
 {
     "xkey": "user_label_nr",
     "ykeys": [
-        "fm"
+        "fm",
+        "dc13",
+        "co2_final"
     ],
     "xlabel": "user_label_nr",
     "ylabels": [
-        "fm"
+        "fm",
+        "dc13",
+        "co2_final"
     ],
     "xmin": "auto",
     "xmax": "auto",
     "ymins": [
+        "auto",
+        "auto",
         "auto"
     ],
     "ymaxs": [
+        "auto",
+        "auto",
         "auto"
     ],
     "ycolors": [
-        "red"
+        "red",
+        "blue",
+        "orange"
     ],
     "forms": [
-        "s"
+        "s",
+        "o",
+        "o"
     ]
 }
