@@ -256,6 +256,9 @@ class PlotWindow(QMainWindow):
             self.ax.clear()
             self.fig.canvas.draw()
 
+        self.fig.tight_layout()
+        self.fig.canvas.draw_idle()
+
 
     def plot_stddev_errorbars(self, x, y, x_key, y_key, i, ax):
         annotations = self.active_annotations
