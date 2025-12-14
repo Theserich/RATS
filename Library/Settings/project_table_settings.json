@@ -19,19 +19,19 @@
         "Display Name": "Target Id",
         "Format": "%s",
         "Multiplier": null,
-        "width": 124
+        "width": 149
     },
     "fm": {
         "Display Name": "F\u00b9\u2074C",
         "Format": "%.4f",
         "Multiplier": null,
-        "width": 87
+        "width": 101
     },
     "fm_sig": {
         "Display Name": "F\u00b9\u2074C_sig",
         "Format": "%.4f",
         "Multiplier": null,
-        "width": 111
+        "width": 137
     },
     "sample_nr": {
         "Display Name": "Sample Nr.",
@@ -49,31 +49,31 @@
         "Display Name": "Magazine",
         "Format": "%s",
         "Multiplier": null,
-        "width": 143
+        "width": 183
     },
     "user_label_nr": {
         "Display Name": "User Label Nr.",
         "Format": "%s",
         "Multiplier": null,
-        "width": 169
+        "width": 208
     },
     "c14_age": {
         "Display Name": "\u00b9\u2074C age",
         "Format": "%.3f",
         "Multiplier": null,
-        "width": 120
+        "width": 130
     },
     "c14_age_sig": {
         "Display Name": "\u00b9\u2074C age sig",
         "Format": "%.3f",
         "Multiplier": null,
-        "width": 139
+        "width": 170
     },
     "co2_final": {
         "Display Name": "co2_final",
         "Format": "%s",
         "Multiplier": null,
-        "width": 267
+        "width": 593
     },
     "advisor": {
         "Display Name": "Advisor",
@@ -109,19 +109,19 @@
         "Display Name": "research",
         "Format": "%s",
         "Multiplier": null,
-        "width": 121
+        "width": 144
     },
     "user_label": {
         "Display Name": "user_label",
         "Format": "%s",
         "Multiplier": null,
-        "width": 138
+        "width": 161
     },
     "target_pressed": {
         "Display Name": "target_pressed",
         "Format": "%s",
         "Multiplier": null,
-        "width": 176
+        "width": 216
     },
     "priority": {
         "Display Name": "priority",
@@ -133,13 +133,13 @@
         "Display Name": "User decr 1",
         "Format": "%s",
         "Multiplier": null,
-        "width": 351
+        "width": 176
     },
     "user_desc2": {
         "Display Name": "user_desc2",
         "Format": "%s",
         "Multiplier": null,
-        "width": 140
+        "width": 171
     },
     "last_name": {
         "Display Name": "last_name",

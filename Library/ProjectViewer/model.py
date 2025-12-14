@@ -1,5 +1,6 @@
 from PyQt5.Qt import QFont
 from PyQt5.QtCore import *
+from Library.timer import timer
 from numpy import sort, array, where, nan
 from Library.comset import read_settings
 
@@ -7,6 +8,7 @@ class MyTableModel(QAbstractTableModel):
 	def __init__(self,table,DB,selectedProject,settingsname='project_table_settings',parent=None):
 		QAbstractTableModel.__init__(self)
 		self.setParent(table)
+		self.Ncol, self.order = 0, 1
 		self.DB = DB
 		self.view = parent
 		self.settingsName = settingsname
@@ -19,6 +21,8 @@ class MyTableModel(QAbstractTableModel):
 		self.set_table_widths()
 		self.layoutChanged.emit()
 		self.set_fontsize()
+		self.sort(self.Ncol,self.order)
+
 
 	def set_fontsize(self):
 		display_settings = read_settings('display_settings')
@@ -98,6 +102,9 @@ class MyTableModel(QAbstractTableModel):
 		return len(self.headers)
 
 	def sort(self, Ncol, order):
+		print(Ncol,order)
+		self.order = order
+		self.Ncol = Ncol
 		sort_column = self.columns[Ncol]
 		self.sorted_ind = self.data[sort_column].argsort(kind='stable')
 		if order == Qt.DescendingOrder:

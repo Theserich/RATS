@@ -87,9 +87,6 @@ class WidgetMain(QMainWindow):
 		self.table.customContextMenuRequested.connect(self.open_Menu)
 		userindex = self.UserNrBox.findText(str(self.start_user_nr))
 		self.UserNrBox.setCurrentIndex(userindex)
-		#project_index = self.ProjectNrBox.findText(str(self.start_proj_nr))
-		#print(project_index)
-		#self.ProjectNrBox.setCurrentIndex(project_index)
 		self.plotButton.clicked.connect(self.openPLotter)
 		self.curveButton.clicked.connect(lambda: CurveWindow(parent=self))
 		self.actionSave_to_xlsx.triggered.connect(self.save_to_excel)
@@ -286,6 +283,7 @@ class WidgetMain(QMainWindow):
 		self.get_project_data()
 		self.user_changing = False
 		self.projectLabel.setText(self.ProjectNameBox.currentText())
+
 
 	def project_field_changed(self, combobox):
 		if self.user_changing:

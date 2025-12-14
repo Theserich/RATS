@@ -1,7 +1,7 @@
 {
     "startProj": [
         2577,
-        6212
+        6346
     ],
     "DefMag": [
         "C200824NB",
@@ -9,7 +9,7 @@
     ],
     "fontsize": 15,
     "height": 25,
-    "windowheight": 1135,
-    "windowwidth": 2104,
+    "windowheight": 1361,
+    "windowwidth": 2560,
     "userbool": true
 }
