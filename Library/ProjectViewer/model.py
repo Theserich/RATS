@@ -60,7 +60,6 @@ class MyTableModel(QAbstractTableModel):
 	def load_data(self,selectedProject):
 		#query = "SELECT * FROM db_ams.target_v where db_ams.target_v.project_nr = %i;" % selectedProject
 		query = read_settings('sql')['projectquery'] % selectedProject
-
 		self.data = DB_call(self.DB, query)
 		self.nrows = len(self.data['target_id'])
 		self.clear_data_from_Nones()

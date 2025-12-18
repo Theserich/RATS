@@ -67,6 +67,14 @@ class WidgetMain(QMainWindow):
 		self.ProjectNameBox.addItems(self.project_names)
 		self.ProjectNrBox.addItems(self.project_nr)
 
+		userindex = self.UserNrBox.findText(str(self.start_user_nr))
+		self.user_id = self.start_user_nr
+		self.UserNrBox.setCurrentIndex(userindex)
+		self.UserNameBox.setCurrentIndex(userindex)
+		projectindex = self.ProjectNrBox.findText(str(self.start_proj_nr))
+		self.ProjectNrBox.setCurrentIndex(projectindex)
+		self.ProjectNameBox.setCurrentIndex(projectindex)
+
 		self.grid_layout = QGridLayout()
 		self.widget.setLayout(self.grid_layout)
 		self.grid_layout.addWidget(self.UserNameBox, 0, 1)
@@ -75,18 +83,9 @@ class WidgetMain(QMainWindow):
 		self.grid_layout.addWidget(self.ProjectNameBox, 1, 1)
 		self.grid_layout.addWidget(self.ProjectNrBox, 1, 0)
 
-		self.ProjectNameBox.currentIndexChanged.connect(lambda: self.project_field_changed(self.ProjectNameBox))
-		self.ProjectNrBox.currentIndexChanged.connect(lambda: self.project_field_changed(self.ProjectNrBox))
-		self.UserNrBox.currentIndexChanged.connect(lambda: self.user_field_changed(self.UserNrBox))
-		self.UserNameBox.currentIndexChanged.connect(lambda: self.user_field_changed(self.UserNameBox))
-		self.user_checkbox.toggled.connect(self.user_checkbox_toggled)
-		ctrlc = CopySelectedCellsAction(self)
-		self.addAction(ctrlc)
+
 		self.model = MyTableModel(self.table, self.DB, self.start_proj_nr)
-		self.table.setContextMenuPolicy(Qt.CustomContextMenu)
-		self.table.customContextMenuRequested.connect(self.open_Menu)
-		userindex = self.UserNrBox.findText(str(self.start_user_nr))
-		self.UserNrBox.setCurrentIndex(userindex)
+
 		self.plotButton.clicked.connect(self.openPLotter)
 		self.curveButton.clicked.connect(lambda: CurveWindow(parent=self))
 		self.actionSave_to_xlsx.triggered.connect(self.save_to_excel)
@@ -95,18 +94,47 @@ class WidgetMain(QMainWindow):
 		header = HeaderView(self.table)
 		self.table.setHorizontalHeader(header)
 		redrawSignal.signal.connect(self.model.redrawTable)
-		redrawSignal.signal.connect(lambda: set_label_size(self,'Mainwindow'))
-		redrawSignal.signal.connect(lambda: set_label_size(self,'Mainwindow'))
+		redrawSignal.signal.connect(lambda: set_label_size(self, 'Mainwindow'))
+		redrawSignal.signal.connect(lambda: set_label_size(self, 'Mainwindow'))
 		self.model.redrawTable()
 		h = self.UserNrBox.height()
 		w = self.UserNameBox.width()
 
-		self.groupBox.setMaximumHeight(8*h)
-		self.groupBox.setMaximumWidth(5* w)
+		self.groupBox.setMaximumHeight(8 * h)
+		self.groupBox.setMaximumWidth(5 * w)
 		self.projectLabel.setText(self.ProjectNameBox.currentText())
 		self.searchButton.clicked.connect(self.searchSample)
-		self.user_checkbox_toggled()
-		set_label_size(self,'Mainwindow')
+		if self.user_checkbox.isChecked():
+			project_indexes = where(self.projects['user_nr'] == self.user_id)[0]
+			project_nrs = self.project_nr[project_indexes]
+			project_names = self.project_names[project_indexes]
+			self.ProjectNameBox.clear()
+			self.ProjectNrBox.clear()
+			self.ProjectNameBox.addItems(project_names)
+			self.ProjectNrBox.addItems(project_nrs)
+			projectindex = self.ProjectNrBox.findText(str(self.start_proj_nr))
+			self.ProjectNrBox.setCurrentIndex(projectindex)
+			self.ProjectNameBox.setCurrentIndex(projectindex)
+		else:
+			self.UserNrBox.setEnabled(False)
+			self.UserNameBox.setEnabled(False)
+		set_label_size(self, 'Mainwindow')
+
+		self.ProjectNameBox.currentIndexChanged.connect(lambda: self.project_field_changed(self.ProjectNameBox))
+		self.ProjectNrBox.currentIndexChanged.connect(lambda: self.project_field_changed(self.ProjectNrBox))
+		self.UserNrBox.currentIndexChanged.connect(lambda: self.user_field_changed(self.UserNrBox))
+		self.UserNameBox.currentIndexChanged.connect(lambda: self.user_field_changed(self.UserNameBox))
+		self.user_checkbox.toggled.connect(self.user_checkbox_toggled)
+		ctrlc = CopySelectedCellsAction(self)
+		self.addAction(ctrlc)
+
+		self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+		self.table.customContextMenuRequested.connect(self.open_Menu)
+
+
+
+
+
 
 	def save_to_excel(self):
 		# Open save dialog
@@ -135,6 +163,7 @@ class WidgetMain(QMainWindow):
 		self.settings = read_settings('display_settings')
 		if self.settings is None:
 			self.settings = standardSettings
+			write_settings(self.settings, 'display_settings')
 		for key in self.settings.keys():
 			if key not in standardSettings:
 				self.settings.pop(key)
