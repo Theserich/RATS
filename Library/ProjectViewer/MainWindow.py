@@ -1,6 +1,8 @@
+import copy
+
 from PyQt5.uic import loadUi
 from PyQt5.Qt import QFont, Qt,QTimer
-from Library.comset import read_settings, write_settings
+from Library.comset import read_settings, write_settings, read_setttins_with_defaults
 from PyQt5.QtWidgets import QMenu
 from numpy import array, where, nan
 from Library.FrontendLogic.SearchCombobox import ExtendedComboBox
@@ -19,7 +21,9 @@ from Library.ProjectViewer.USBConnector import USBConnector
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from pandas import DataFrame
 from Library.ProjectViewer.CurvePLotter import CurveWindow
-standardSettings = {'startProj': [2913, 9214], 'DefMag': ['C200824NB', 'C14'], 'fontsize': 15, 'height': 25, 'windowheight': 1065, 'windowwidth': 1487, 'userbool':True}
+from Library.ProjectViewer.standardSettings import standard_display_settings, standard_table_settings
+
+
 
 
 class WidgetMain(QMainWindow):
@@ -160,16 +164,13 @@ class WidgetMain(QMainWindow):
 
 
 	def loadSettings(self):
-		self.settings = read_settings('display_settings')
-		if self.settings is None:
-			self.settings = standardSettings
-			write_settings(self.settings, 'display_settings')
+		self.settings = read_setttins_with_defaults('display_settings', standard_display_settings)
 		for key in self.settings.keys():
-			if key not in standardSettings:
+			if key not in standard_display_settings:
 				self.settings.pop(key)
-		for key in standardSettings.keys():
+		for key in standard_display_settings.keys():
 			if key not in self.settings.keys():
-				self.settings[key] = standardSettings[key]
+				self.settings[key] = standard_display_settings[key]
 		[self.start_user_nr, self.start_proj_nr] = self.settings['startProj']
 		self.selected_project = int(self.start_proj_nr)
 		height = self.settings['windowheight']
@@ -225,7 +226,7 @@ class WidgetMain(QMainWindow):
 		super().closeEvent(event)
 
 	def change_width_settings(self):
-		table_settings = read_settings(self.settingsName)
+		table_settings = read_setttins_with_defaults(self.settingsName,standard_table_settings)
 		for i, col in enumerate(self.model.columns):
 			width = self.table.columnWidth(i)
 			table_settings[col]['width'] = width

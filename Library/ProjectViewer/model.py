@@ -2,7 +2,8 @@ from PyQt5.Qt import QFont
 from PyQt5.QtCore import *
 from Library.timer import timer
 from numpy import sort, array, where, nan
-from Library.comset import read_settings
+from Library.comset import read_settings,read_setttins_with_defaults
+from Library.ProjectViewer.standardSettings import standard_table_settings
 
 class MyTableModel(QAbstractTableModel):
 	def __init__(self,table,DB,selectedProject,settingsname='project_table_settings',parent=None):
@@ -41,7 +42,7 @@ class MyTableModel(QAbstractTableModel):
 		self.parent().horizontalHeader().setStretchLastSection(True)
 
 	def load_table_settings(self):
-		self.table_settings = read_settings(self.settingsName)
+		self.table_settings = read_setttins_with_defaults(self.settingsName,standard_table_settings)
 		self.fontsize = read_settings("display_settings")['fontsize']
 		self.columns = self.table_settings['columns']
 		self.headers = [self.table_settings[key]['Display Name'] for key in self.columns]
