@@ -23,7 +23,6 @@ class MyTableModel(QAbstractTableModel):
 		self.set_fontsize()
 		self.sort(self.Ncol,self.order)
 
-
 	def set_fontsize(self):
 		display_settings = read_settings('display_settings')
 		fontsize = display_settings['fontsize']
@@ -34,8 +33,6 @@ class MyTableModel(QAbstractTableModel):
 		for i in range(self.nrows):
 			self.parent().setRowHeight(i, rowsize)
 		self.parent().setFont(font)
-
-
 
 	def set_table_widths(self):
 		for i, col in enumerate(self.columns):
@@ -97,12 +94,10 @@ class MyTableModel(QAbstractTableModel):
 			return QVariant(self.headers[col])
 		return QVariant()
 
-
 	def columnCount(self,parent=QModelIndex()):
 		return len(self.headers)
 
 	def sort(self, Ncol, order):
-		print(Ncol,order)
 		self.order = order
 		self.Ncol = Ncol
 		sort_column = self.columns[Ncol]

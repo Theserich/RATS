@@ -172,7 +172,6 @@ class better_table_edit:
             return
         if dir==1 and idx[-1]==len(self.columns)-1:
             return
-        print(table.columnCount())
         for id in idx:
             for i in range(1,table.columnCount()):
                 cb1 = self.cbs[id]
