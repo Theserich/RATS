@@ -1,12 +1,12 @@
 from PyQt5.uic import loadUi
-from PyQt5.QtWidgets import QDialog,QAbstractItemView,QMessageBox, QTableView, QTableWidgetItem, QComboBox
+from PyQt5.QtWidgets import QDialog,QAbstractItemView,QMessageBox, QTableView, QTableWidgetItem
 from Library.comset import read_settings, write_settings, read_setttins_with_defaults
 from Library.FrontendLogic.SearchCombobox import ExtendedComboBox
 from numpy import array
 from PyQt5.QtWidgets import QFileDialog
 import os
 from os.path import join
-from Library.ProjectViewer.standardSettings import standard_display_settings
+from Library.Settings.standardSettings import standard_display_settings
 
 class WidgetDialog(QDialog):
     def __init__(self, path):

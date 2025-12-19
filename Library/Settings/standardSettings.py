@@ -187,3 +187,63 @@ standard_proj_plot_Settings = {
         "s"
     ]
 }
+
+windowsizes = {
+    "editcol": {
+        "height": 1134,
+        "width": 1344,
+        "labels": [
+            "load_button",
+            "save_button",
+            "OK_button",
+            "Cancel_button",
+            "pB_Add",
+            "pB_Remove",
+            "pB_Up",
+            "pB_Down"
+        ]
+    },
+    "projectviewer": {
+        "height": 1361,
+        "width": 3145,
+        "labels": []
+    },
+    "plotwindow": {
+        "height": 1403,
+        "width": 3362,
+        "labels": [
+            "edit_Button",
+            "edit_Button",
+            "label_2",
+            "error_input",
+            "label_3",
+            "last_button",
+            "next_button",
+            "activate_Button",
+            "deactivate_Button",
+            "adjust_button"
+        ]
+    },
+    "Mainwindow": {
+        "height": 1403,
+        "width": 3362,
+        "labels": [
+            "label_2",
+            "tab_2",
+            "SampleNr",
+            "label",
+            "sampleEdit",
+            "searchButton",
+            "plotButton",
+            "widthButton",
+            "projectLabel",
+            "editButton",
+            "ProjectNrBox",
+            "UserNrBox",
+            "UserNameBox",
+            "ProjectNameBox",
+            "tabWidget",
+            "groupBox"
+        ]
+    }
+}

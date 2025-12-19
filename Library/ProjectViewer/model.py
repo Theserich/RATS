@@ -1,9 +1,8 @@
 from PyQt5.Qt import QFont
 from PyQt5.QtCore import *
-from Library.timer import timer
-from numpy import sort, array, where, nan
+from numpy import array, where, nan
 from Library.comset import read_settings,read_setttins_with_defaults
-from Library.ProjectViewer.standardSettings import standard_table_settings
+from Library.Settings.standardSettings import standard_table_settings
 
 class MyTableModel(QAbstractTableModel):
 	def __init__(self,table,DB,selectedProject,settingsname='project_table_settings',parent=None):

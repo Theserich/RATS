@@ -13,50 +13,6 @@
             "pB_Down"
         ]
     },
-    "curcorr": {
-        "height": 980,
-        "width": 1360,
-        "labels": [
-            "label_2",
-            "lineEdit",
-            "label_3",
-            "label_5",
-            "offsetEdit",
-            "label_4",
-            "buttonBox"
-        ]
-    },
-    "molcor": {
-        "height": 1553,
-        "width": 2485,
-        "labels": [
-            "lineEdit",
-            "label",
-            "errorEdit",
-            "label_2",
-            "buttonBox"
-        ]
-    },
-    "timecor": {
-        "height": 788,
-        "width": 1098,
-        "labels": [
-            "buttonBox",
-            "label_2",
-            "label_5",
-            "label_4",
-            "offsetEdit"
-        ]
-    },
-    "Splitcor": {
-        "height": 689,
-        "width": 1055,
-        "labels": [
-            "addButton",
-            "buttonBox",
-            "removeButton"
-        ]
-    },
     "projectviewer": {
         "height": 1361,
         "width": 3145,
@@ -76,26 +32,6 @@
             "activate_Button",
             "deactivate_Button",
             "adjust_button"
-        ]
-    },
-    "correctionSequence": {
-        "height": 1403,
-        "width": 3362,
-        "labels": [
-            "label1312",
-            "blank_checkbox",
-            "molCorrCheck",
-            "TimeCorrCheck",
-            "currentCorrCheck",
-            "ConstBgCheck",
-            "ConstBgbutton",
-            "currentCorrbutton",
-            "TimeCorrbutton",
-            "molCorrbutton",
-            "std14_label",
-            "std13_label",
-            "blanklabel",
-            "label"
         ]
     },
     "Mainwindow": {

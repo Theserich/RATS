@@ -1,10 +1,8 @@
-import copy
-
 from PyQt5.uic import loadUi
-from PyQt5.Qt import QFont, Qt,QTimer
+from PyQt5.Qt import Qt,QTimer
 from Library.comset import read_settings, write_settings, read_setttins_with_defaults
 from PyQt5.QtWidgets import QMenu
-from numpy import array, where, nan
+from numpy import array, where
 from Library.FrontendLogic.SearchCombobox import ExtendedComboBox
 from Library.ProjectViewer.EditcolProjectViewer import better_table_edit
 from Library.ProjectViewer.CopyPasteClass import CopySelectedCellsAction, copy_cells_to_clipboard
@@ -12,16 +10,15 @@ from Library.ProjectViewer.plotwindow import PlotWindow
 from PyQt5.QtWidgets import QMainWindow, QGridLayout, QCheckBox
 from Library.ProjectViewer.model import MyTableModel
 from Library.zoomAction import init_zoom_action
-from Library.timer import timer
 from Library.SignalEmitter import redrawSignal
 from Library.ProjectViewer.Header import HeaderView
 from Library.DBconnect.DBconnect import DBconnect
-from Library.ProjectViewer.windowSizes import set_label_size,resize_window
+from Library.ProjectViewer.windowSizes import set_label_size
 from Library.ProjectViewer.USBConnector import USBConnector
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from pandas import DataFrame
 from Library.ProjectViewer.CurvePLotter import CurveWindow
-from Library.ProjectViewer.standardSettings import standard_display_settings, standard_table_settings
+from Library.Settings.standardSettings import standard_display_settings, standard_table_settings
 
 
 
