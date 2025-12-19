@@ -50,6 +50,7 @@ def read_setttins_with_defaults(file_name: str, default_data: dict, path: str = 
             write_settings(data=data, file_name=file_name, path=path)
     return data
 
+
 def write_settings(data: dict, file_name: str, path: str = settingspath) -> None:
     return write_file(data=data, file_name=file_name, path=path, file_format='json')
 
