@@ -3,9 +3,9 @@
     "ykeys": [
         "fm"
     ],
-    "xlabel": "user_label_nr",
+    "xlabel": "Year BP",
     "ylabels": [
-        "fm"
+        "F\u00b9\u2074C"
     ],
     "xmin": "auto",
     "xmax": "auto",
@@ -16,9 +16,9 @@
         "auto"
     ],
     "ycolors": [
-        "red"
+        "blue"
     ],
     "forms": [
-        "s"
+        "x"
     ]
 }

@@ -40,6 +40,14 @@ def read_setttins_with_defaults(file_name: str, default_data: dict, path: str = 
     if data is None:
         data = copy.deepcopy(default_data)
         write_settings(data=data, file_name=file_name, path=path)
+    else:
+        updated = False
+        for key in default_data.keys():
+            if key not in data:
+                data[key] = copy.deepcopy(default_data[key])
+                updated = True
+        if updated:
+            write_settings(data=data, file_name=file_name, path=path)
     return data
 
 def write_settings(data: dict, file_name: str, path: str = settingspath) -> None:
