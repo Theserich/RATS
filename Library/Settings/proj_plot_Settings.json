@@ -3,9 +3,9 @@
     "ykeys": [
         "fm"
     ],
-    "xlabel": "Year BP",
+    "xlabel": "User label Nr",
     "ylabels": [
-        "F\u00b9\u2074C"
+        "fm"
     ],
     "xmin": "auto",
     "xmax": "auto",

@@ -322,10 +322,21 @@ class WidgetMain(QMainWindow):
 		index = combobox.findText(text)
 		self.ProjectNrBox.setCurrentIndex(index)
 		self.ProjectNameBox.setCurrentIndex(index)
+
 		try:
 			self.selected_project = int(self.ProjectNrBox.currentText())
 		except:
 			self.selected_project = 0
+		try:
+			self.user_changing = True
+			projindex = where(self.projects['project_nr'] == self.selected_project)[0][0]
+			usernr = self.projects['user_nr'][projindex]
+			index = self.UserNrBox.findText(str(usernr))
+			self.UserNrBox.setCurrentIndex(index)
+			self.UserNameBox.setCurrentIndex(index)
+			self.user_changing = False
+		except Exception as e:
+			print(e)
 		self.get_project_data()
 		self.project_changing = False
 		self.projectLabel.setText(self.ProjectNameBox.currentText())
