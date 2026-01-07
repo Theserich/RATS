@@ -35,7 +35,7 @@ class CurveWindow(QMainWindow):
         self.sortkeys = ['sample_nr', 'target_nr', 'prep_nr', 'project', 'project_nr', 'magazine', 'user_label', 'last_name',
                          'target_pressed', 'bp', 'treeid', 'user_label_nr', 'c14_age', 'c14_age_sig', 'fm', 'fm_sig', 'dc13',
                          'dc13_sig', 'target_id','co2_final','rel err']
-        self.standardsettings = {'window': {'size': [2116, 1112], 'pos': [1717, 18]}, 't0': 1000, 't1': 2000, 'bp': False, 'stopped': False, 'sortkey': 'c14_age_sig','colormap':'nipy_spectral'}
+        self.standardsettings = {'window': {'size': [2116, 1112], 'pos': [1717, 18]}, 't0': 1000, 't1': 2000, 'bp': False, 'stopped': False, 'sortkey': 'c14_age_sig','colormap':'nipy_spectral','legend':True}
         self.widget = parent
         self.DB = parent.DB
 
@@ -47,6 +47,7 @@ class CurveWindow(QMainWindow):
         self.sortBox.addItems(self.sortkeys)
         self.colorBox.addItems(allcolormaps)
         self.load_settings()
+        self.legend_checkBox.stateChanged.connect(self.toggle_legend)
         self.sortBox.currentIndexChanged.connect(self.update_params_and_redraw)
         self.colorBox.currentIndexChanged.connect(self.update_params_and_redraw)
         self.t0_edit.editingFinished.connect(self.update_params_and_redraw)
@@ -58,7 +59,7 @@ class CurveWindow(QMainWindow):
         self.show()
 
     def load_settings(self):
-        settings = read_settings('curve_settings')
+        settings = read_setttins_with_defaults('curve_settings',self.standardsettings)
         if settings is not None:
             self.resize(*settings["window"]["size"])
             self.move(*settings["window"]["pos"])
@@ -95,6 +96,7 @@ class CurveWindow(QMainWindow):
         """Grab UI values and redraw the plot."""
         self.t0 = self.t0_edit.value()
         self.t1 = self.t1_edit.value()
+        self.legend = self.legend_checkBox.isChecked()
         self.bp = self.BP_checkBox.isChecked()
         self.sortkey = self.sortBox.currentText()
         self.stopped = self.stopped_checkbox.isChecked()
@@ -103,7 +105,12 @@ class CurveWindow(QMainWindow):
         self.stoppeddf = self.getData(stopped=True)
         self.draw_plot()
 
-    @timer
+    def toggle_legend(self):
+        if hasattr(self, "legend_artist") and self.legend_artist is not None:
+            self.legend_artist.set_visible(self.legend_checkBox.isChecked())
+            self.canvas.draw_idle()
+
+    #@timer
     def draw_plot(self):
         """Main plotting logic (adapted from your standalone script)."""
         # clear previous
@@ -262,6 +269,12 @@ class CurveWindow(QMainWindow):
             ax.xaxis.set_major_formatter(FuncFormatter(CE_BCE_format))
         ax.set_ylabel(r"$\Delta^{14}$C (‰)")
         ax.grid(ls=":")
+        self.legend_artist = ax.legend(
+            frameon=False,
+            fontsize=fontsize - 4,
+            ncol=3
+        )
+        self.legend_artist.set_visible(self.legend)
         self.canvas.draw()
 
 
@@ -310,7 +323,8 @@ class CurveWindow(QMainWindow):
             "bp": self.BP_checkBox.isChecked(),
             "stopped": self.stopped_checkbox.isChecked(),
             "sortkey": self.sortBox.currentText(),
-            "colormap": self.colorBox.currentText()
+            "colormap": self.colorBox.currentText(),
+            "legend": self.legend_checkBox.isChecked()
         }
         write_settings(settings, 'curve_settings')
 

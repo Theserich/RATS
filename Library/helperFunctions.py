@@ -34,7 +34,6 @@ def convertCalendarToBCE(t,bp=False):
         return 1950-t
     return res
 
-@timer
 def groupdf(df, sortkey):
     data = {}
     for key in df.keys():

@@ -99,7 +99,6 @@ class better_table_edit:
             self.model.layoutChanged.emit()
             return True, 'OK'
         except Exception as e:
-            print(e)
             write_settings(self.savesettings, self.settingsName)
             self.model.load_table_settings()
             self.model.layoutChanged.emit()
