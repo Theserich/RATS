@@ -3,7 +3,8 @@ from matplotlib.pyplot import Figure
 from pathlib import Path
 from PyQt5.Qt import Qt
 from PyQt5.uic import loadUi
-from Library.comset import read_settings
+from Library.Settings.standardSettings import standard_proj_plot_Settings
+from Library.comset import read_settings, read_setttins_with_defaults
 from numpy import array
 import mplcursors
 from PyQt5.QtCore import QTimer
@@ -50,7 +51,7 @@ class PlotWindow(QMainWindow):
     def load_plot_settings(self):
         self.display_settings = read_settings('display_settings')
         if not self.settingsWindow:
-            plotKeys = read_settings('proj_plot_Settings')
+            plotKeys = read_setttins_with_defaults('proj_plot_Settings',standard_proj_plot_Settings)
             self.x_key = plotKeys['xkey']
             self.xlabel = plotKeys['xlabel']
             self.ylabels = plotKeys['ylabels']
