@@ -178,32 +178,6 @@ class DBconnect():
                 vbox.addWidget(container)
                 dlg.setLayout(vbox)
 
-    def set_stopped(self):
-        self.__ok = False
-
-def execute(self, query, parameters=None, multi=False):
-        """
-        Execute a query (or list of queries if multi=True).
-        `parameters` can be a tuple for single query,
-        or an iterable of tuples for multi=True.
-        """
-        cnx = self.getConnection()
-        if cnx is None:
-            # user cancelled or connection impossible right now
-            return
-
-        cursor = cnx.cursor()
-        try:
-            if multi:
-                parameters = parameters or []
-                for q, p in zip(query, parameters):
-                    cursor.execute(q, tuple(p))
-            else:
-                cursor.execute(query, parameters or ())
-            cnx.commit()
-        finally:
-            cursor.close()
-            cnx.close()
 
 
 class loadui(QDialog):
