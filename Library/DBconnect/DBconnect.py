@@ -131,41 +131,25 @@ class DBconnect():
         self.__window.close()
 
     def __ensure_host_field(self, dlg: QDialog):
-        """
-        Ensure the dialog has a QLineEdit named 'lineEdit_Host'.
-        If the .ui already contains it, use it.
-        Otherwise, add a 'Host:' field in a way that matches the dialog's layout type.
-        """
-        # Already present? Nothing to do.
         if hasattr(dlg, 'lineEdit_Host') and dlg.lineEdit_Host is not None:
             return
-
         layout = dlg.layout()
         if layout is None:
             # No layout at all: create a simple vertical layout
             layout = QVBoxLayout(dlg)
             dlg.setLayout(layout)
-
-        # Build label + edit
         lbl = QLabel("Host:", dlg)
         host_edit = QLineEdit(dlg)
         host_edit.setObjectName("lineEdit_Host")
-        # expose for the rest of the code
         dlg.lineEdit_Host = host_edit
-
-        # A small reusable row for non-form/grid layouts
         row = QHBoxLayout()
         row.addWidget(lbl)
         row.addWidget(host_edit)
-
-        # Handle by layout type
         if isinstance(layout, QFormLayout):
-            # Put on top if insertRow exists, else append
             if hasattr(layout, "insertRow"):
                 layout.insertRow(0, lbl, host_edit)
             else:
                 layout.addRow(lbl, host_edit)
-
         elif isinstance(layout, QGridLayout):
             # Append to the bottom row and span all columns (or 1 if unknown)
             r = layout.rowCount()
@@ -174,16 +158,11 @@ class DBconnect():
             except Exception:
                 cspan = 1
             layout.addLayout(row, r, 0, 1, cspan)
-
         elif isinstance(layout, QVBoxLayout):
-            # Place at the top
             layout.insertLayout(0, row)
-
         elif isinstance(layout, QHBoxLayout):
-            # Append to the right
             layout.addWidget(lbl)
             layout.addWidget(host_edit)
-
         else:
             # Generic fallback:
             # Try to append the row; if that fails, wrap the old layout under a new VBox.
@@ -198,6 +177,9 @@ class DBconnect():
                 container.setLayout(layout)
                 vbox.addWidget(container)
                 dlg.setLayout(vbox)
+
+    def set_stopped(self):
+        self.__ok = False
 
 def execute(self, query, parameters=None, multi=False):
         """

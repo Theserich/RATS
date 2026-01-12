@@ -125,6 +125,7 @@ class WidgetMain(QMainWindow):
 		self.ProjectNrBox.currentIndexChanged.connect(lambda: self.project_field_changed(self.ProjectNrBox))
 		self.UserNrBox.currentIndexChanged.connect(lambda: self.user_field_changed(self.UserNrBox))
 		self.UserNameBox.currentIndexChanged.connect(lambda: self.user_field_changed(self.UserNameBox))
+		self.table.clicked.connect(self.model.tableClicked)
 		self.user_checkbox.toggled.connect(self.user_checkbox_toggled)
 		ctrlc = CopySelectedCellsAction(self)
 		self.addAction(ctrlc)

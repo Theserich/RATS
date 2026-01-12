@@ -288,9 +288,10 @@ class PlotWindow(QMainWindow):
                 target_id = dataset["target_id"][index]
                 project = dataset["project"][index]
                 magazine = dataset["magazine"][index]
+                stopped = dataset["stop"][index]
                 c02 = dataset["co2_final"][index]
                 sel.annotation.set_text(
-                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n C0$_2$: {c02}"
+                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n C0$_2$: {c02}\nStopped: {stopped}"
                 )
                 annotations.append(sel.annotation)
                 sel.annotation.get_figure().canvas.draw_idle()
@@ -313,9 +314,10 @@ class PlotWindow(QMainWindow):
                 target_id = dataset["target_id"][index]
                 project = dataset["project"][index]
                 magazine = dataset["magazine"][index]
+                stopped = int(dataset["stop"][index])
                 c02 = dataset["co2_final"][index]
                 sel.annotation.set_text(
-                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n C0$_2$: {c02}"
+                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n C0$_2$: {c02}\nStop: {stopped}"
                 )
                 annotations.append(sel.annotation)
 

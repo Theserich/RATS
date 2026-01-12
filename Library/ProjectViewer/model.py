@@ -3,6 +3,7 @@ from PyQt5.QtCore import *
 from numpy import array, where, nan
 from Library.comset import read_settings,read_setttins_with_defaults
 from Library.Settings.standardSettings import standard_table_settings
+from PyQt5.Qt import QFont, QColor
 
 class MyTableModel(QAbstractTableModel):
 	def __init__(self,table,DB,selectedProject,settingsname='project_table_settings',parent=None):
@@ -69,7 +70,10 @@ class MyTableModel(QAbstractTableModel):
 		column = index.column()
 		row = index.row()
 		colkey = self.columns[column]
+		stopped = self.data['stop'][row]
 		if role == Qt.DisplayRole:
+			if colkey == 'stop':
+				return ''
 			factor = self.table_settings[colkey]['Multiplier']
 			if factor is not None:
 				try:
@@ -81,9 +85,35 @@ class MyTableModel(QAbstractTableModel):
 					return self.table_settings[colkey]['Format'] % self.data[colkey][row]
 				except:
 					return self.data[colkey][row]
+		elif role == Qt.CheckStateRole:
+			if colkey == 'stop':
+				if stopped:
+					return Qt.Checked
+				else:
+					return Qt.Unchecked
+		elif role == Qt.BackgroundColorRole:
+			if stopped:
+				bgColor = QColor(100, 100, 100)
+				bgColor.setAlpha(140)
+				return QVariant(bgColor)
 		elif role == 1:
 			return self.data[colkey][row]
 		return None
+
+	def tableClicked(self, item):
+		col = item.column()
+		row = self.sorted_ind[item.row()]
+		colkey = self.columns[col]
+		if colkey == 'stop':
+			if item.data(role=Qt.CheckStateRole) == Qt.Checked:
+				stop = 0
+
+			else:
+				stop = 1
+			self.data['stop'][row] = stop
+			set_stop(self.DB, self.data['sample_nr'][row], self.data['target_nr'][row], self.data['prep_nr'][row], stop)
+			self.layoutChanged.emit()
+
 
 	def rowCount(self, parent=QModelIndex()):
 		return len(self.data['target_id'])
@@ -128,3 +158,14 @@ def DB_call(DB,query,parameters=None):
 	cursor.close()
 	if cnx != None: cnx.close()
 	return result
+
+def set_stop(DB, sample_nr, target_nr, prep_nr,stop):
+	cnx = DB.getConnection()
+	if cnx is None:
+		return
+	cursor = cnx.cursor()
+	query = "UPDATE db_ams.target_t SET stop = %s WHERE sample_nr = %s AND prep_nr = %s AND target_nr = %s"
+	cursor.execute(query, (int(stop),int(sample_nr),int(prep_nr), int(target_nr)))
+	cnx.commit()
+	cursor.close()
+	cnx.close()

@@ -172,12 +172,14 @@ class CurveWindow(QMainWindow):
                     annotation.set_visible(False)
                 index = sel.index
                 target_id = dataset["target_id"][index]
+                treeid = dataset["treeid"][index]
+                userlabel = dataset["user_label"][index]
                 project = dataset["project"][index]
                 magazine = dataset["magazine"][index]
                 c02 = dataset["co2_final"][index]
                 relerr = dataset["rel err"][index]
                 sel.annotation.set_text(
-                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n relative err: {relerr:.1f}‰\nC0$_2$: {c02}"
+                    f"Project: {project}\nuserlabel: {userlabel}\ntarget_id: {target_id}\nMagazine: {magazine}\n relative err: {relerr:.1f}‰\nC0$_2$: {c02}"
                 )
                 annotations.append(sel.annotation)
 
@@ -198,12 +200,14 @@ class CurveWindow(QMainWindow):
                 annotation.set_visible(False)
             index = sel.index
             target_id = dataset["target_id"][index]
+            treeid = dataset["treeid"][index]
+            userlabel = dataset["user_label"][index]
             project = dataset["project"][index]
             magazine = dataset["magazine"][index]
             c02 = dataset["co2_final"][index]
             relerr = dataset["rel err"][index]
             sel.annotation.set_text(
-                f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n relative err: {relerr:.1f}‰\nC0$_2$: {c02}"
+                f"Project: {project}\nuser label: {userlabel}\ntarget_id: {target_id}\nMagazine: {magazine}\n relative err: {relerr:.1f}‰\nC0$_2$: {c02}"
             )
             annotations.append(sel.annotation)
 
