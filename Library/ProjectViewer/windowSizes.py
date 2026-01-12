@@ -1,4 +1,5 @@
-from Library.comset import read_settings, write_settings
+from Library.comset import read_settings, read_setttins_with_defaults, write_settings
+from Library.Settings.standardSettings import windowsizes
 from os.path import join
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QFont
@@ -11,8 +12,7 @@ def set_label_size(window,name,factor=1):
     font.setPointSize(int(fontsize * 0.8))
 
     # Apply font to all labels from settings
-    path = 'windowsizes'
-    settings = read_settings(path)
+    settings = read_setttins_with_defaults('windowsizes',windowsizes)
     for label in settings[name]['labels']:
         if hasattr(window, label):
             window.__dict__[label].setFont(font)
