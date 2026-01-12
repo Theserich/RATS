@@ -29,13 +29,14 @@ NAN_KEY = NaNSentinel()
 
 allcolormaps = ['Set1','Reds','cool', 'coolwarm', 'gray', 'hot','hot_r', 'jet','jet_r', 'nipy_spectral','nipy_spectral_r', 'ocean']
 
+standardsettings = {'window': {'size': [2116, 1112], 'pos': [1717, 18]}, 't0': 1500, 't1': 2000, 'bp': False, 'stopped': False, 'sortkey': 'treeid','colormap':'nipy_spectral','legend':True}
 
 class CurveWindow(QMainWindow):
     def __init__(self, path=Path("UIFiles/CalibrationPlot.ui"), parent=None):
         self.sortkeys = ['sample_nr', 'target_nr', 'prep_nr', 'project', 'project_nr', 'magazine', 'user_label', 'last_name',
                          'target_pressed', 'bp', 'treeid', 'user_label_nr', 'c14_age', 'c14_age_sig', 'fm', 'fm_sig', 'dc13',
                          'dc13_sig', 'target_id','co2_final','rel err']
-        self.standardsettings = {'window': {'size': [2116, 1112], 'pos': [1717, 18]}, 't0': 1000, 't1': 2000, 'bp': False, 'stopped': False, 'sortkey': 'c14_age_sig','colormap':'nipy_spectral','legend':True}
+
         self.widget = parent
         self.DB = parent.DB
 
@@ -59,21 +60,20 @@ class CurveWindow(QMainWindow):
         self.show()
 
     def load_settings(self):
-        settings = read_setttins_with_defaults('curve_settings',self.standardsettings)
-        if settings is not None:
-            self.resize(*settings["window"]["size"])
-            self.move(*settings["window"]["pos"])
-            self.t0_edit.setValue(settings.get("t0",self.standardsettings['t0']))
-            self.t1_edit.setValue(settings["t1"])
-            self.BP_checkBox.setChecked(settings["bp"])
-            self.stopped_checkbox.setChecked(settings["stopped"])
-            sortkey = settings.get("sortkey",self.standardsettings['sortkey'])
-            if settings["sortkey"] in self.sortkeys:
-                self.sortBox.setCurrentIndex(self.sortkeys.index(sortkey))
-                index = self.sortBox.currentIndex()
-            colormap = settings.get("colormap",self.standardsettings['colormap'])
-            if colormap in allcolormaps:
-                self.colorBox.setCurrentIndex(allcolormaps.index(colormap))
+        settings = read_setttins_with_defaults('curve_settings',standardsettings)
+        self.resize(*settings["window"]["size"])
+        self.move(*settings["window"]["pos"])
+        self.t0_edit.setValue(settings["t0"])
+        self.t1_edit.setValue(settings["t1"])
+        self.BP_checkBox.setChecked(settings["bp"])
+        self.stopped_checkbox.setChecked(settings["stopped"])
+        sortkey = settings["sortkey"]
+        if settings["sortkey"] in self.sortkeys:
+            self.sortBox.setCurrentIndex(self.sortkeys.index(sortkey))
+            index = self.sortBox.currentIndex()
+        colormap = settings["colormap"]
+        if colormap in allcolormaps:
+            self.colorBox.setCurrentIndex(allcolormaps.index(colormap))
 
     def initialize_plot(self):
         plot_layout = self.plot_widget.layout()
