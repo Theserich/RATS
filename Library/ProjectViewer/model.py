@@ -102,16 +102,17 @@ class MyTableModel(QAbstractTableModel):
 
 	def tableClicked(self, item):
 		col = item.column()
-		row = self.sorted_ind[item.row()]
+		row = item.row()
 		colkey = self.columns[col]
 		if colkey == 'stop':
 			if item.data(role=Qt.CheckStateRole) == Qt.Checked:
 				stop = 0
-
 			else:
 				stop = 1
+			print(stop)
 			self.data['stop'][row] = stop
-			set_stop(self.DB, self.data['sample_nr'][row], self.data['target_nr'][row], self.data['prep_nr'][row], stop)
+			print(self.data['sample_nr'][row],self.data['prep_nr'][row],self.data['prep_nr'][row])
+			#set_stop(self.DB, self.data['sample_nr'][row], self.data['target_nr'][row], self.data['prep_nr'][row], stop)
 			self.layoutChanged.emit()
 
 
