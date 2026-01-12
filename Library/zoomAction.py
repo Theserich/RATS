@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QAction
 from Library.comset import read_settings, write_settings
 from Library.SignalEmitter import redrawSignal
-from Library.ProjectViewer.windowSizes import set_label_size,resize_window
 
 def init_zoom_action(widget,plotwindow=False):
 	zoom_in_Action = QAction('zoom',widget)

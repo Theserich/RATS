@@ -4,23 +4,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QComboBox,QApplication,QSizePolicy
 
-def resize_window(window,name):
-    path = join('UISettings','windowsizes')
-    settings = read_settings(path)
-    width = settings[name]['width']
-    height = settings[name]['height']
-    window.resize(width, height)
-    set_label_size(window,name)
-
-
-def save_size(window,name):
-    w = window.width()
-    h = window.height()
-    path = 'windowsizes'
-    settings = read_settings(path)
-    settings[name]['height'] = h
-    settings[name]['width'] = w
-    write_settings(settings, path)
 
 def set_label_size(window,name,factor=1):
     fontsize = read_settings('display_settings')['fontsize'] * factor
