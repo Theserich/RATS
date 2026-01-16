@@ -1,17 +1,20 @@
+from copy import deepcopy
+
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 from matplotlib.pyplot import Figure
 from pathlib import Path
 from PyQt5.Qt import Qt
 from PyQt5.uic import loadUi
 from Library.Settings.standardSettings import standard_proj_plot_Settings
-from Library.comset import read_settings, read_setttins_with_defaults
-from numpy import array
+from Library.comset import read_settings, read_setttins_with_defaults, write_settings
+from numpy import array,isnan, where, nan
 import mplcursors
 from PyQt5.QtCore import QTimer
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvas, NavigationToolbar2QT as NavigationToolbar
 )
 from Library.ProjectViewer.Plotsettings import SettingsWindow
+from Library.helperFunctions import outlierTest
 
 
 class PlotWindow(QMainWindow):
@@ -27,16 +30,43 @@ class PlotWindow(QMainWindow):
         self.colors = ['orange', 'red', 'blue', 'green',
                        'mediumspringgreen', 'forestgreen', 'yellowgreen',
                        'khaki', 'darkorange', 'indianred']
+
+        print(self.Errorlabel.text())
+        self.load_plot_settings()
         self.initialize_plot()
+        self.setOutliervalues()
         self.plot()
         self.settings_button.clicked.connect(self.open_settings)
+        self.OutlierCheck.stateChanged.connect(self.plot)
+        self.pval_edit.editingFinished.connect(self.plot)
+        self.Windowlen_edit.editingFinished.connect(self.plot)
+        self.zscore_edit.editingFinished.connect(self.plot)
         QTimer.singleShot(100, self.adjust_initial_layout)
+
+    def setOutliervalues(self):
+        self.OutlierCheck.setChecked(self.Outliertest)
+        self.pval_edit.setValue(self.pval)
+        self.Windowlen_edit.setValue(self.lenwindow)
+        self.zscore_edit.setValue(self.zfactor)
+
+    def getOutlierValues(self):
+        self.Outliertest = self.OutlierCheck.isChecked()
+        self.pval = self.pval_edit.value()
+        self.lenwindow = self.Windowlen_edit.value()
+        self.zfactor = self.zscore_edit.value()
+
+
+
 
     def open_settings(self):
         self.settingsWindow = SettingsWindow(self.data, parent=self)
         self.settingsWindow.show()
 
     def closeEvent(self, event):
+        settings = read_settings('proj_plot_Settings')
+        for key in settings:
+            settings[key] = self.__dict__[key]
+        write_settings(settings,'proj_plot_Settings')
         if self.settingsWindow:
             self.settingsWindow.close()
             self.settingsWindow = False
@@ -48,31 +78,13 @@ class PlotWindow(QMainWindow):
         except Exception as e:
             print(f"Layout adjustment failed: {e}")
 
+
     def load_plot_settings(self):
         self.display_settings = read_settings('display_settings')
-        if not self.settingsWindow:
-            plotKeys = read_setttins_with_defaults('proj_plot_Settings',standard_proj_plot_Settings)
-            self.x_key = plotKeys['xkey']
-            self.xlabel = plotKeys['xlabel']
-            self.ylabels = plotKeys['ylabels']
-            self.ykeys = plotKeys['ykeys']
-            self.ymins = plotKeys['ymins']
-            self.ymaxs = plotKeys['ymaxs']
-            self.xmin = plotKeys['xmin']
-            self.xmax = plotKeys['xmax']
-            self.colors = plotKeys['ycolors']
-            self.forms = plotKeys['forms']
-        else:
-            self.x_key = self.settingsWindow.xkey
-            self.xlabel = self.settingsWindow.xlabel
-            self.ylabels = self.settingsWindow.ylabels
-            self.ykeys = self.settingsWindow.ykeys
-            self.ymins = self.settingsWindow.ymins
-            self.ymaxs = self.settingsWindow.ymaxs
-            self.xmin = self.settingsWindow.xlimmin
-            self.xmax = self.settingsWindow.xlimmax
-            self.colors = self.settingsWindow.ycolors
-            self.forms = self.settingsWindow.forms
+        settings = read_setttins_with_defaults('proj_plot_Settings', standard_proj_plot_Settings)
+        for key in settings:
+            self.__dict__[key] = settings[key]
+
 
     def set_xlimits(self):
         if self.xmin == 'auto' and self.xmax == 'auto':
@@ -94,15 +106,52 @@ class PlotWindow(QMainWindow):
         else:
             ax.set_ylim(bottom=min, top=max)
 
+    def plotOutliers(self):
+
+        testdata = deepcopy(self.data)
+        for key in ['fm','fm_sig','user_label_nr']:
+            for i, value in enumerate(testdata[key]):
+                try:
+                    testdata[key][i] = float(value)
+                except:
+                    testdata[key][i] = nan
+            testdata[key] = array(testdata[key],dtype=float)
+
+        x = self.x
+        for major_key in ['fm','fm_sig','user_label_nr']:
+            nonaninds = where(~isnan(testdata[major_key]))[0]
+            x = x[nonaninds]
+            for key in self.data:
+                testdata[key] = testdata[key][nonaninds]
+        try:
+            badinds = outlierTest(testdata, self.lenwindow,self.pval, self.zfactor,ratio=0.7)
+            if len(badinds) > 0:
+                self.baddata = {}
+                for key in testdata:
+                    self.baddata[key] = testdata[key][badinds]
+                for i, y_key in enumerate(self.ykeys):
+                    if y_key == '':
+                        continue
+                    y = self.baddata[y_key]
+                    try:
+                        y = array([float(val) for val in y])
+                    except Exception:
+                        y = self.baddata[y_key]
+                    self.allaxes[i].plot(x[badinds],y,self.forms[i],color='k',zorder=1000,markersize=10)
+        except Exception as e:
+            self.Errorlabel.setText(f"Error: {e}")
+            pass
+
+
     def plot(self):
         """
         Main plotting routine. Creates a twin y-axis for each ykey and positions
         their right spine 'outward' so tick labels + ylabel do not overlap.
         """
-
+        self.getOutlierValues()
         if getattr(self, "_resizing", False):
             return
-        self.load_plot_settings()
+
         fontsize = self.display_settings.get('fontsize', 10)
         for ann in getattr(self, "active_annotations", []):
             try:
@@ -120,20 +169,19 @@ class PlotWindow(QMainWindow):
             except Exception:
                 pass
         self.allaxes.clear()
-
-        if self.x_key == '':
+        if self.xkey == '':
             return
 
-        x = self.data[self.x_key]
+        self.x = self.data[self.xkey]
         try:
-            x = array([float(v) for v in x])
+            self.x = array([float(v) for v in self.x])
         except Exception:
-            if self.x_key == 'timedat':
+            if self.xkey == 'timedat':
                 from datetime import datetime
-                x = [datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
-                     for val in self.data[self.x_key]]
+                self.x = [datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
+                     for val in self.data[self.xkey]]
             else:
-                x = self.data[self.x_key]
+                self.x = self.data[self.xkey]
 
         # cumulative outward offset (in points). we'll increment it after measuring each axis.
         cumulative_offset_points = 0.0
@@ -143,7 +191,6 @@ class PlotWindow(QMainWindow):
         for i, y_key in enumerate(self.ykeys):
             if y_key == '':
                 continue
-
             y = self.data[y_key]
             try:
                 y = array([float(val) for val in y])
@@ -155,7 +202,7 @@ class PlotWindow(QMainWindow):
             self.allaxes.append(ax)
 
             # plot the data
-            line, = ax.plot(x, y, self.forms[i], color=self.colors[i], label=y_key)
+            line, = ax.plot(self.x, y, self.forms[i], color=self.ycolors[i], label=y_key)
             cursor = mplcursors.cursor(line, hover=True)
             annotations = self.active_annotations
             @cursor.connect("add")
@@ -176,21 +223,10 @@ class PlotWindow(QMainWindow):
             ax.yaxis.label.set_color(line.get_color())
             ax.set_ylabel(self.ylabels[i], fontsize=fontsize)
             ax.tick_params(axis='y', which='major', labelsize=fontsize)
-
-            # set y-limits if provided
             self.set_ylimits(ax, self.ymins[i], self.ymaxs[i])
-
-            # draw canvas to ensure text objects have positions (renderer required)
-            # this is necessary to measure ticklabel and ylabel bounding boxes
             self.fig.canvas.draw()
-
-            # get renderer
             renderer = self.fig.canvas.get_renderer()
-
-            # compute width of tick labels + ylabel for this axis in pixels
             bbox_pixels = None
-
-            # measure y tick labels (only those with text)
             yticks = ax.get_yticklabels()
             for tl in yticks:
                 text = tl.get_text()
@@ -238,10 +274,11 @@ class PlotWindow(QMainWindow):
 
             # after positioning, update cumulative_offset for the next axis:
             cumulative_offset_points += width_points
-
             # attach errorbars & mplcursors if available
-            self.plot_stddev_errorbars(x, y, self.x_key, y_key, i, ax)
-
+            self.plot_stddev_errorbars(self.x, y, self.xkey, y_key, i, ax)
+        self.Errorlabel.setText("")
+        if self.Outliertest:
+            self.plotOutliers()
         # host axis final formatting
         self.ax.set_xlabel(self.xlabel, fontsize=fontsize)
         self.ax.set_yticks([])
@@ -277,26 +314,7 @@ class PlotWindow(QMainWindow):
                 ysig = array([float(val) for val in ysig])
             except Exception:
                 ysig = self.data[ysig_key]
-
-            errorbar = ax.errorbar(x, y, fmt=self.forms[i], xerr=xsig, yerr=ysig, color=self.colors[i], capsize=3)
-            cursor = mplcursors.cursor(errorbar.lines[0], hover=True)
-
-            @cursor.connect("add")
-            def on_add(sel, dataset=self.data):
-                for annotation in annotations:
-                    annotation.set_visible(False)
-                index = sel.index
-                target_id = dataset["target_id"][index]
-                project = dataset["project"][index]
-                magazine = dataset["magazine"][index]
-                stopped = dataset["stop"][index]
-                c02 = dataset["co2_final"][index]
-                sel.annotation.set_text(
-                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n C0$_2$: {c02}\nStopped: {stopped}"
-                )
-                annotations.append(sel.annotation)
-                sel.annotation.get_figure().canvas.draw_idle()
-
+            ax.errorbar(x, y, fmt=self.forms[i], xerr=xsig, yerr=ysig, color=self.ycolors[i], capsize=3)
         elif ysig_key in keys:
             ysig = self.data[ysig_key]
             try:
@@ -304,23 +322,7 @@ class PlotWindow(QMainWindow):
             except Exception:
                 ysig = self.data[ysig_key]
 
-            errorbar = ax.errorbar(x, y, fmt=self.forms[i], yerr=ysig, color=self.colors[i], capsize=3)
-            cursor = mplcursors.cursor(errorbar.lines[0], hover=True)
-
-            @cursor.connect("add")
-            def on_add(sel, dataset=self.data):
-                for annotation in annotations:
-                    annotation.set_visible(False)
-                index = sel.index
-                target_id = dataset["target_id"][index]
-                project = dataset["project"][index]
-                magazine = dataset["magazine"][index]
-                stopped = int(dataset["stop"][index])
-                c02 = dataset["co2_final"][index]
-                sel.annotation.set_text(
-                    f"Project: {project}\ntarget_id: {target_id}\nMagazine: {magazine}\n C0$_2$: {c02}\nStop: {stopped}"
-                )
-                annotations.append(sel.annotation)
+            ax.errorbar(x, y, fmt=self.forms[i], yerr=ysig, color=self.ycolors[i], capsize=3)
 
     def initialize_plot(self):
         p = self.plot_widget.palette()

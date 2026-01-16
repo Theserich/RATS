@@ -26,13 +26,13 @@ class SettingsWindow(QMainWindow):
 		self.saveasButton.clicked.connect(self.saveAs)
 		self.loadButton.clicked.connect(self.load_settings)
 		self.possible_keys = array(self.datakeys)
-		self.plotKeys = read_settings('proj_plot_Settings')
+		self.plotSettings = read_settings('proj_plot_Settings')
 		self.get_Combobox_indexes()
 
 		self.display_keys = array(self.datakeys)
 		self.saveButton.clicked.connect(self.write_settings)
 		self.xCombobox.addItems(self.possible_keys)
-		self.xindex = self.xCombobox.findText(self.plotKeys['xkey'])
+		self.xindex = self.xCombobox.findText(self.plotSettings['xkey'])
 		self.xCombobox.setCurrentIndex(self.xindex)
 		self.xCombobox.currentIndexChanged.connect(self.DBfield_changed)
 		self.remove_button.clicked.connect(self.remove_row)
@@ -48,29 +48,28 @@ class SettingsWindow(QMainWindow):
 		self.y_min_lim_fields = []
 		self.y_max_lim_fields = []
 		self.n = 0
-		for i in range(len(self.plotKeys['ykeys'])):
+		for i in range(len(self.plotSettings['ykeys'])):
 			self.add_row()
 		self.settings_widget.setLayout(self.grid_layout)
 		self.copySettings()
-		self.xlabeledit.setText(self.xlabel)
-		self.xmin.setText(str(self.x_min))
-		self.xmax.setText(str(self.x_max))
+		self.xlabeledit.setText(self.parent.xlabel)
+		self.xmin.setText(str(self.parent.xmin))
+		self.xmax.setText(str(self.parent.xmax))
 		for i, yBox in enumerate(self.yComboboxes):
-			self.ylabel_fields[i].setText(self.ylabels[i])
-		self.parent.plot()
+			self.ylabel_fields[i].setText(self.parent.ylabels[i])
 
 	def get_Combobox_indexes(self):
 		self.init_indexes = []
-		for key in self.plotKeys['ykeys']:
+		for key in self.plotSettings['ykeys']:
 			self.init_indexes.append(where(self.possible_keys == key)[0][0])
 		self.colorIndexes = []
-		for color in self.plotKeys['ycolors']:
+		for color in self.plotSettings['ycolors']:
 			for i, c in enumerate(self.allcolors):
 				if color == c:
 					self.colorIndexes.append(i)
 					continue
 		self.formIndexes = []
-		for form in self.plotKeys['forms']:
+		for form in self.plotSettings['forms']:
 			for i, f in enumerate(self.allforms):
 				if form == f:
 					self.formIndexes.append(i)
@@ -83,6 +82,7 @@ class SettingsWindow(QMainWindow):
 			pixmap.fill(QColor(color))
 			icon = QIcon(pixmap)
 			self.colors.append([icon,color])
+
 	def add_row(self):
 		if self.n<5:
 			self.yComboboxes.append(ExtendedComboBox())
@@ -110,14 +110,14 @@ class SettingsWindow(QMainWindow):
 				model.appendRow(item)
 			for color in self.colors:
 				self.colorboxes[-1].addItem(color[0],'')
-			if self.n < len(self.plotKeys['ykeys']):
+			if self.n < len(self.plotSettings['ykeys']):
 				self.yComboboxes[-1].setCurrentIndex(self.init_indexes[self.n])
 				self.colorboxes[-1].setCurrentIndex(self.colorIndexes[self.n])
 				self.formboxes[-1].setCurrentIndex(self.formIndexes[self.n])
 				self.ylabel_fields[-1].setText(self.display_keys[self.yComboboxes[-1].currentIndex()])
-				if self.yComboboxes[-1].currentText() in self.plotKeys['ykeys']:
-					self.y_min_lim_fields[-1].setText(str(self.plotKeys['ymins'][self.n]))
-					self.y_max_lim_fields[-1].setText(str(self.plotKeys['ymaxs'][self.n]))
+				if self.yComboboxes[-1].currentText() in self.plotSettings['ykeys']:
+					self.y_min_lim_fields[-1].setText(str(self.plotSettings['ymins'][self.n]))
+					self.y_max_lim_fields[-1].setText(str(self.plotSettings['ymaxs'][self.n]))
 				else:
 					self.y_min_lim_fields[-1].setText('auto')
 					self.y_max_lim_fields[-1].setText('auto')
@@ -138,59 +138,51 @@ class SettingsWindow(QMainWindow):
 
 
 	def read_fields(self):
-		self.xkey = self.xCombobox.currentText()
-		self.xlabel = self.xlabeledit.text()
+		self.parent.xkey = self.xCombobox.currentText()
+		self.parent.xlabel = self.xlabeledit.text()
 		try:
-			self.xlimmin = float(self.xmin.text())
+			self.parent.xlimmin = float(self.xmin.text())
 		except:
-			self.xlimmin = self.xmin.text()
-			if self.xlimmin == 'auto':
+			self.parent.xlimmin = self.xmin.text()
+			if self.parent.xlimmin == 'auto':
 				pass
 			else:
-				self.xlimmin = 'auto'
+				self.parent.xlimmin = 'auto'
 		try:
-			self.xlimmax = float(self.xmax.text())
+			self.parent.xlimmax = float(self.xmax.text())
 		except:
-			self.xlimmax = self.xmax.text()
-			if self.xlimmin == 'auto':
+			self.parent.xlimmax = self.xmax.text()
+			if self.parent.xlimmin == 'auto':
 				pass
 			else:
-				self.xlimmax = 'auto'
-		self.ykeys = []
-		self.ylabels = []
-		self.ymins = []
-		self.ymaxs = []
-		self.ycolors = []
-		self.forms = []
+				self.parent.xlimmax = 'auto'
+		self.parent.ykeys = []
+		self.parent.ylabels = []
+		self.parent.ymins = []
+		self.parent.ymaxs = []
+		self.parent.ycolors = []
+		self.parent.forms = []
 		for i, yBox in enumerate(self.yComboboxes):
 			ykey = yBox.currentText()
-			self.ykeys.append(ykey)
+			self.parent.ykeys.append(ykey)
 			ylabel = self.ylabel_fields[i].text()
-			self.ylabels.append(ylabel)
+			self.parent.ylabels.append(ylabel)
 			colorindex = self.colorboxes[i].currentIndex()
-			self.ycolors.append(self.colors[colorindex][1])
+			self.parent.ycolors.append(self.colors[colorindex][1])
 			form = self.formboxes[i].currentText()
-			self.forms.append(form)
+			self.parent.forms.append(form)
 			try:
-				self.ymins.append(float(self.y_min_lim_fields[i].text()))
+				self.parent.ymins.append(float(self.y_min_lim_fields[i].text()))
 			except:
-				self.ymins.append('auto')
+				self.parent.ymins.append('auto')
 			try:
-				self.ymaxs.append(float(self.y_max_lim_fields[i].text()))
+				self.parent.ymaxs.append(float(self.y_max_lim_fields[i].text()))
 			except:
-				self.ymaxs.append('auto')
+				self.parent.ymaxs.append('auto')
 
 	def copySettings(self):
-		self.xkey = self.plotKeys['xkey']
-		self.xlabel = self.plotKeys['xlabel']
-		self.ykeys = self.plotKeys['ykeys']
-		self.ylabels = self.plotKeys['ylabels']
-		self.x_min = self.plotKeys['xmin']
-		self.x_max = self.plotKeys['xmax']
-		self.ymins = self.plotKeys['ymins']
-		self.ymaxs = self.plotKeys['ymaxs']
-		self.ycolors = self.plotKeys['ycolors']
-		self.forms = self.plotKeys['forms']
+		for key in self.plotSettings.keys():
+			self.parent.__setattr__(key, self.plotSettings[key])
 
 	def saveAs(self):
 		options = QFileDialog.Options()
@@ -213,16 +205,8 @@ class SettingsWindow(QMainWindow):
 
 	def overwrite_settings(self):
 		newsettings = read_settings('proj_plot_Settings')
-		newsettings['xkey'] = self.xkey
-		newsettings['ykeys'] = self.ykeys
-		newsettings['xlabel'] = self.xlabel
-		newsettings['ylabels'] = self.ylabels
-		newsettings['xmin'] = self.xlimmin
-		newsettings['xmax'] = self.xlimmax
-		newsettings['ymins'] = self.ymins
-		newsettings['ymaxs'] = self.ymaxs
-		newsettings['ycolors'] = self.ycolors
-		newsettings['forms'] = self.forms
+		for key in newsettings.keys():
+			newsettings[key] = self.parent.__getattribute__(key)
 		return newsettings
 
 	def load_settings(self):
@@ -235,10 +219,10 @@ class SettingsWindow(QMainWindow):
 			file = os.path.basename(fileName)
 			if fileName:
 				with open(fileName, 'r') as outfile:
-					self.plotKeys = load_js(outfile)
-				self.plotKeys = self.plotKeys
+					self.plotSettings = load_js(outfile)
+				self.plotSettings = self.plotSettings
 		except Exception as e:
-			self.plotKeys = read_settings('proj_plot_Settings')
+			self.plotSettings = read_settings('proj_plot_Settings')
 		try:
 			self.copySettings()
 		except:
@@ -248,10 +232,10 @@ class SettingsWindow(QMainWindow):
 			msg.setInformativeText('The selected file has not the correct formating')
 			msg.setWindowTitle("Error")
 			msg.exec_()
-			self.plotKeys = read_settings('proj_plot_Settings')
+			self.plotSettings = read_settings('proj_plot_Settings')
 			self.copySettings()
 		self.get_Combobox_indexes()
-		self.xindex = self.xCombobox.findText(self.plotKeys['xkey'])
+		self.xindex = self.xCombobox.findText(self.plotSettings['xkey'])
 		self.xCombobox.setCurrentIndex(self.xindex)
 		for i in range(self.n):
 			self.yComboboxes[i].setParent(None)
@@ -267,16 +251,17 @@ class SettingsWindow(QMainWindow):
 		self.y_max_lim_fields = []
 		self.colorboxes = []
 		self.formboxes = []
-		self.xmin.setText(str(self.x_min))
-		self.xmax.setText(str(self.x_max))
-		for i in range(len(self.plotKeys['ykeys'])):
+		self.xmin.setText(str(self.xmin))
+		self.xmax.setText(str(self.xmax))
+		for i in range(len(self.plotSettings['ykeys'])):
 			self.add_row()
 		for i, yBox in enumerate(self.yComboboxes):
-			self.ylabel_fields[i].setText(self.ylabels[i])
+			self.ylabel_fields[i].setText(self.parent.ylabels[i])
 
 	def cancel(self):
-		self.plotKeys = read_settings('proj_plot_Settings')
+		self.plotSettings = read_settings('proj_plot_Settings')
 		self.copySettings()
+		self.parent.load_plot_settings()
 		self.parent.plot()
 		self.close()
 
@@ -296,8 +281,6 @@ class SettingsWindow(QMainWindow):
 
 	def display_field_changed(self):
 		self.read_fields()
-		newsettings = read_settings('proj_plot_Settings')
-		newsettings['ykeys'] = self.ykeys
 		self.parent.plot()
 
 	def remove_row(self):

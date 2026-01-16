@@ -2,6 +2,7 @@ from sys import argv, exit
 from PyQt5.QtWidgets import QApplication
 from Library.ProjectViewer.MainWindow import WidgetMain
 from pyqtgraph.Qt import QtCore
+from PyQt5.QtGui import QIcon
 from pathlib import Path
 import matplotlib
 import faulthandler
@@ -14,6 +15,8 @@ if __name__ == '__main__':
         QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
         app = QApplication(argv)
         widget = WidgetMain(Path('UIFiles/projectWindow.ui'))
+        icon_path = Path("Ratimg.ico").resolve()
+        app.setWindowIcon(QIcon(str(icon_path)))
         widget.show()
         app.setStyle('Fusion')
         exit(app.exec_())

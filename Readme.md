@@ -7,9 +7,9 @@ A desktop application built using PyQt5 for data visualization and analysis, equ
 ## **Features**
 
 - **Direct database access for MICADAS AMS data**
-- **Interactive Plotting**: Support for generating dynamic and responsive plots using PyQtGraph and Matplotlib.
+- **Interactive Plotting**: Support for generating dynamic and responsive plots using Matplotlib.
 - **Data Management**: Export data seamlessly.
-- **Excel File Support**: Easily import/export data with Excel for better data handling flexibility.
+- **Excel File Support**: Easily export data to Excel.
 - **Customizable Visualizations**: Adjust plot curves, labels, and style to suit specific requirements.
 
 ## **Installation Guide**

@@ -22,7 +22,6 @@ from Library.Settings.standardSettings import standard_display_settings, standar
 
 
 
-
 class WidgetMain(QMainWindow):
 	def __init__(self, path):
 		self.settingsName = 'project_table_settings'
@@ -185,6 +184,8 @@ class WidgetMain(QMainWindow):
 				lambda screen: set_label_size(self, 'Mainwindow')
 			)
 			self._screen_changed_connected = True
+
+
 	def getConnectionLine(self):
 		self.scanner.checkConnection()
 		sample = self.scanner.readLine()

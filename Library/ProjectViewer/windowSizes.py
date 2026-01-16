@@ -36,7 +36,6 @@ def set_label_size(window,name,factor=1):
 
         window.groupBox.setMaximumHeight(8 * h)
         window.groupBox.setMaximumWidth(5 * w)
-
     # Tell Qt to recalc the layout after font changes
     if window.layout():
         window.layout().activate()

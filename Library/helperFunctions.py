@@ -1,4 +1,5 @@
-from numpy import array, where, exp, log, unique, sort
+from numpy import array, where, exp, log, unique, sort, argsort, ones, arange, zeros_like, sum as npsum
+from scipy.stats import chi2
 from copy import copy
 from pandas import read_excel
 from pathlib import Path
@@ -19,6 +20,49 @@ def calcD14C(df):
     newdf['c14_age'] = -8033*log(newdf['fm'])
     newdf['c14_age_sig'] = 8033/newdf['fm']*newdf['fm_sig']
     return newdf
+
+def outlierTest(df, ntest=4, problim=0.001,sigmathresh=4,ratio=0.8):
+    if len(df['user_label_nr']) < ntest:
+        return array([]),array([]),array([]),array([]),df
+    countdict = {}
+    allcountdict = {}
+    for year in arange(min(df['user_label_nr']), max(df['user_label_nr']) - ntest + 1):
+        idx = where((df['user_label_nr'] >= year) & (df['user_label_nr'] < year + ntest))[0]
+        if len(idx) < 3:
+            continue
+        y = df['fm'][idx]
+        sigma = df['fm_sig'][idx]
+        target_ids = df['target_id'][idx]
+        w = 1 / sigma ** 2
+        meanfm = npsum(w * y) / npsum(w)
+        chisquared = npsum((meanfm - y) ** 2 / sigma ** 2)
+        pval = 1 - chi2.cdf(chisquared, len(idx) - 1)
+        for target in target_ids:
+            allcountdict[target] = allcountdict.get(target, 0) + 1
+        if pval < problim:
+            mask = ones(len(y), dtype=bool)
+            while True:
+
+                w = 1 / sigma[mask] ** 2
+
+                mu = npsum(w * y[mask]) / npsum(w)
+                z = (y[mask] - mu) / sigma[mask]
+                new_mask = abs(z) <= sigmathresh
+                if new_mask.sum() == mask.sum():
+                    break
+                temp = zeros_like(mask)
+                temp[mask] = new_mask
+                mask = temp
+            bad_targets = target_ids[~mask]
+            for target in bad_targets:
+                countdict[target] = countdict.get(target, 0) + 1
+    badtargets = []
+    for id in countdict:
+        if countdict[id]/allcountdict[id] >ratio:
+            badtargets.append(id)
+    idxdict = {id: i for i, id in enumerate(df['target_id'])}
+    badinds = array([idxdict[target] for target in badtargets])
+    return badinds
 
 def convertCalendarToBCE(t,bp=False):
     if bp == False:

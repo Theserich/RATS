@@ -185,7 +185,11 @@ standard_proj_plot_Settings = {
     ],
     "forms": [
         "s"
-    ]
+    ],
+    "Outliertest": False,
+    "pval": 0.01,
+    "lenwindow": 3,
+    "zfactor": 4
 }
 
 windowsizes = {
