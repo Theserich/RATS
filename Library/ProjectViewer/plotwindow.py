@@ -1,11 +1,10 @@
 from copy import deepcopy
-
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 from matplotlib.pyplot import Figure
 from pathlib import Path
 from PyQt5.Qt import Qt
 from PyQt5.uic import loadUi
-from Library.Settings.standardSettings import standard_proj_plot_Settings
+from Library.Settings.standardSettings import standard_proj_plot_Settings, windowsizes
 from Library.comset import read_settings, read_setttins_with_defaults, write_settings
 from numpy import array,isnan, where, nan
 import mplcursors
@@ -37,7 +36,7 @@ class PlotWindow(QMainWindow):
         self.setOutliervalues()
         self.plot()
         self.settings_button.clicked.connect(self.open_settings)
-        self.OutlierCheck.stateChanged.connect(self.plot)
+        self.OutlierCheck.toggled.connect(self.plot)
         self.pval_edit.editingFinished.connect(self.plot)
         self.Windowlen_edit.editingFinished.connect(self.plot)
         self.zscore_edit.editingFinished.connect(self.plot)
@@ -63,6 +62,10 @@ class PlotWindow(QMainWindow):
         self.settingsWindow.show()
 
     def closeEvent(self, event):
+        windowsettings = read_setttins_with_defaults('windowsizes', windowsizes)
+        windowsettings['plotwindow']['height'] = self.height()
+        windowsettings['plotwindow']['width'] = self.width()
+        write_settings(windowsettings,'windowsizes')
         settings = read_settings('proj_plot_Settings')
         for key in settings:
             settings[key] = self.__dict__[key]
@@ -81,10 +84,13 @@ class PlotWindow(QMainWindow):
 
     def load_plot_settings(self):
         self.display_settings = read_settings('display_settings')
+        self.windowsettings = read_setttins_with_defaults('windowsizes',windowsizes)
+        height = self.windowsettings['plotwindow']['height']
+        width = self.windowsettings['plotwindow']['width']
+        self.resize(width, height)
         settings = read_setttins_with_defaults('proj_plot_Settings', standard_proj_plot_Settings)
         for key in settings:
             self.__dict__[key] = settings[key]
-
 
     def set_xlimits(self):
         if self.xmin == 'auto' and self.xmax == 'auto':
@@ -334,7 +340,7 @@ class PlotWindow(QMainWindow):
         self.fig = Figure()
         canvas = FigureCanvas(self.fig)
         self.addToolBar(Qt.BottomToolBarArea, NavigationToolbar(canvas, self))
-
+        canvas.mpl_connect("button_press_event", self.clear_annotations)
         plot_layout.addWidget(canvas)
 
         # create a single host axis (standard Matplotlib Axes)
@@ -342,6 +348,15 @@ class PlotWindow(QMainWindow):
         self.ax.set_yticks([])
 
         self.fig.subplots_adjust(left=0.1, top=0.95, right=0.9, bottom=0.05)
+
+    def clear_annotations(self, event=None):
+        for ann in self.active_annotations:
+            try:
+                ann.set_visible(False)
+            except:
+                pass
+        self.active_annotations.clear()
+        self.fig.canvas.draw_idle()
 
     def resizeEvent(self, event):
         self._resizing = True

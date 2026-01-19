@@ -16,12 +16,18 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="2">
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="OutlierCheck">
       <property name="title">
-       <string>Outlier Tester</string>
+       <string>Show Outliers</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
+       <item row="0" column="0">
         <widget class="QSpinBox" name="Windowlen_edit">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;length of the sliding window over 'userlabel_nr'&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -34,17 +40,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QCheckBox" name="OutlierCheck">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Activate outlier detection&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Show Outliers</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
+       <item row="0" column="1">
         <widget class="QDoubleSpinBox" name="pval_edit">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;p-value limit of failed chisquared test over the window&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -63,7 +59,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
+       <item row="0" column="2">
         <widget class="QDoubleSpinBox" name="zscore_edit">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;z-value factor threshold&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -79,7 +75,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="3">
+       <item row="1" column="0" colspan="3">
         <widget class="QLabel" name="Errorlabel">
          <property name="text">
           <string/>
