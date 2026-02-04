@@ -19,14 +19,25 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from pandas import DataFrame
 from Library.ProjectViewer.CurvePLotter import CurveWindow
 from PyQt5.QtCore import QSignalBlocker
+from Library.timer import timer
 from Library.Settings.standardSettings import standard_display_settings, standard_table_settings
+import logging
+from Library.QtlogHandler import LoggerWindow
 
+
+
+
+
+logger = logging.getLogger("project_viewer")
 
 class WidgetMain(QMainWindow):
-	def __init__(self, path):
+	def __init__(self, path, qt_handler):
 		self.settingsName = 'project_table_settings'
 		super(WidgetMain, self).__init__()
 		loadUi(path, self)
+		logger.addHandler(qt_handler)
+		self.loggerWindow = LoggerWindow(qt_handler, log_file="application.log", parent=self)
+		self.actionShowLogs.triggered.connect(self.loggerWindow.show)
 		self.DB = DBconnect()
 		self.loadSettings()
 		self.scanner = USBConnector()
@@ -265,7 +276,6 @@ class WidgetMain(QMainWindow):
 		self.plotWindow = PlotWindow(self.model.data, parent=self)
 		self.plotWindow.show()
 
-
 	def user_checkbox_toggled(self):
 		checked = self.user_checkbox.isChecked()
 		self.UserNrBox.setEnabled(checked)
@@ -333,7 +343,7 @@ class WidgetMain(QMainWindow):
 			self.projectLabel.setText(self.ProjectNameBox.currentText())
 
 		except Exception as e:
-			print("Error in user_field_changed:", e)
+			logger.exception("Error in project_field_changed")
 
 		self.user_changing = False
 
@@ -371,9 +381,10 @@ class WidgetMain(QMainWindow):
 			self.get_project_data()
 			self.projectLabel.setText(self.ProjectNameBox.currentText())
 		except Exception as e:
-			print("Error in project_field_changed:", e)
+			logger.exception("Error in project_field_changed")
 		self.project_changing = False
 
+	@timer
 	def get_project_data(self):
 		savedata = read_settings('display_settings')
 		savedata['startProj'] = [self.user_id,self.selected_project]

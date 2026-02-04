@@ -246,6 +246,7 @@
      <string>File</string>
     </property>
     <addaction name="actionSave_to_xlsx"/>
+    <addaction name="actionShowLogs"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -253,6 +254,11 @@
   <action name="actionSave_to_xlsx">
    <property name="text">
     <string>Save to xlsx</string>
+   </property>
+  </action>
+  <action name="actionShowLogs">
+   <property name="text">
+    <string>Show Logs</string>
    </property>
   </action>
  </widget>

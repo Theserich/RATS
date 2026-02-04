@@ -14,11 +14,15 @@ from matplotlib.backends.backend_qt5agg import (
 )
 from Library.ProjectViewer.Plotsettings import SettingsWindow
 from Library.helperFunctions import outlierTest
+import logging
 
+logger = logging.getLogger('Library.ProjectViewer.plotwindow')
+logger.setLevel(logging.DEBUG)
 
 class PlotWindow(QMainWindow):
     def __init__(self, data, path=Path('UIFiles/Project_plotter.ui'), parent=None):
         self.data = data
+        logger.debug(f"Plotting data: {data}")
         self.widget = parent
         self.settingsWindow = False
         self.active_annotations = []
@@ -29,8 +33,6 @@ class PlotWindow(QMainWindow):
         self.colors = ['orange', 'red', 'blue', 'green',
                        'mediumspringgreen', 'forestgreen', 'yellowgreen',
                        'khaki', 'darkorange', 'indianred']
-
-        print(self.Errorlabel.text())
         self.load_plot_settings()
         self.initialize_plot()
         self.setOutliervalues()
@@ -79,7 +81,8 @@ class PlotWindow(QMainWindow):
             self.fig.tight_layout()
             self.fig.canvas.draw_idle()
         except Exception as e:
-            print(f"Layout adjustment failed: {e}")
+            logger.warning(f"Initial layout adjustment failed: {e}")
+
 
 
     def load_plot_settings(self):
@@ -287,7 +290,7 @@ class PlotWindow(QMainWindow):
             try:
                 self.plotOutliers()
             except Exception as e:
-                print(f"Error plotting outliers: {e}")
+                logger.warning(f"Error plotting outliers: {e}")
         # host axis final formatting
         self.ax.set_xlabel(self.xlabel, fontsize=fontsize)
         self.ax.set_yticks([])
