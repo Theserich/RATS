@@ -18,8 +18,8 @@ from Library.ProjectViewer.USBConnector import USBConnector
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from pandas import DataFrame
 from Library.ProjectViewer.CurvePLotter import CurveWindow
+from PyQt5.QtCore import QSignalBlocker
 from Library.Settings.standardSettings import standard_display_settings, standard_table_settings
-
 
 
 class WidgetMain(QMainWindow):
@@ -290,58 +290,89 @@ class WidgetMain(QMainWindow):
 	def user_field_changed(self, combobox):
 		if self.user_changing:
 			return
-		self.user_changing = True
-		index = combobox.currentIndex()
-		try:
-			self.user_id = int(self.user_nr[index])
-			self.UserNrBox.setCurrentIndex(index)
-			self.UserNameBox.setCurrentIndex(index)
-		except:
-			pass
-		project_indexes = where(self.projects['user_nr'] == self.user_id)[0]
-		project_nrs = self.project_nr[project_indexes]
-		project_names = self.project_names[project_indexes]
-		self.ProjectNameBox.clear()
-		self.ProjectNrBox.clear()
-		self.ProjectNameBox.addItems(project_names)
-		self.ProjectNrBox.addItems(project_nrs)
-		try:
-			self.selected_project = int(self.ProjectNrBox.currentText())
-		except:
-			self.selected_project = 0
-		self.get_project_data()
-		self.user_changing = False
-		self.projectLabel.setText(self.ProjectNameBox.currentText())
 
+		self.user_changing = True
+
+		try:
+			index = combobox.currentIndex()
+			if index < 0:
+				self.user_changing = False
+				return
+
+			# Update user id
+			self.user_id = int(self.user_nr[index])
+
+			# Sync both user comboboxes without triggering signals
+			with QSignalBlocker(self.UserNrBox), QSignalBlocker(self.UserNameBox):
+				self.UserNrBox.setCurrentIndex(index)
+				self.UserNameBox.setCurrentIndex(index)
+
+			# Filter projects belonging to this user
+			project_indexes = where(self.projects['user_nr'] == self.user_id)[0]
+			project_nrs = self.project_nr[project_indexes]
+			project_names = self.project_names[project_indexes]
+
+			# Repopulate project comboboxes safely
+			with QSignalBlocker(self.ProjectNameBox), QSignalBlocker(self.ProjectNrBox):
+				self.ProjectNameBox.clear()
+				self.ProjectNrBox.clear()
+				self.ProjectNameBox.addItems(project_names)
+				self.ProjectNrBox.addItems(project_nrs)
+
+				# Try to keep previous project if possible
+				if len(project_nrs) > 0:
+					self.ProjectNrBox.setCurrentIndex(0)
+					self.ProjectNameBox.setCurrentIndex(0)
+					self.selected_project = int(self.ProjectNrBox.currentText())
+				else:
+					self.selected_project = 0
+
+			# Load project data
+			self.get_project_data()
+
+			self.projectLabel.setText(self.ProjectNameBox.currentText())
+
+		except Exception as e:
+			print("Error in user_field_changed:", e)
+
+		self.user_changing = False
 
 	def project_field_changed(self, combobox):
-		if self.user_changing:
-			return
-		if self.project_changing:
+		if self.user_changing or self.project_changing:
 			return
 		self.project_changing = True
-		text = combobox.currentText()
-		index = combobox.findText(text)
-		self.ProjectNrBox.setCurrentIndex(index)
-		self.ProjectNameBox.setCurrentIndex(index)
+		try:
+			text = combobox.currentText()
+			index = combobox.findText(text)
 
-		try:
-			self.selected_project = int(self.ProjectNrBox.currentText())
-		except:
-			self.selected_project = 0
-		try:
-			self.user_changing = True
-			projindex = where(self.projects['project_nr'] == self.selected_project)[0][0]
-			usernr = self.projects['user_nr'][projindex]
-			index = self.UserNrBox.findText(str(usernr))
-			self.UserNrBox.setCurrentIndex(index)
-			self.UserNameBox.setCurrentIndex(index)
-			self.user_changing = False
+			if index < 0:
+				self.project_changing = False
+				return
+			# Sync both project comboboxes safely
+			with QSignalBlocker(self.ProjectNrBox), QSignalBlocker(self.ProjectNameBox):
+				self.ProjectNrBox.setCurrentIndex(index)
+				self.ProjectNameBox.setCurrentIndex(index)
+			# Update selected project
+			try:
+				self.selected_project = int(self.ProjectNrBox.currentText())
+			except:
+				self.selected_project = 0
+			projindex = where(self.projects['project_nr'] == self.selected_project)[0]
+			if len(projindex) > 0:
+				projindex = projindex[0]
+				usernr = self.projects['user_nr'][projindex]
+
+				userindex = self.UserNrBox.findText(str(usernr))
+				if userindex >= 0:
+					with QSignalBlocker(self.UserNrBox), QSignalBlocker(self.UserNameBox):
+						self.UserNrBox.setCurrentIndex(userindex)
+						self.UserNameBox.setCurrentIndex(userindex)
+					self.user_id = int(usernr)
+			self.get_project_data()
+			self.projectLabel.setText(self.ProjectNameBox.currentText())
 		except Exception as e:
-			print(e)
-		self.get_project_data()
+			print("Error in project_field_changed:", e)
 		self.project_changing = False
-		self.projectLabel.setText(self.ProjectNameBox.currentText())
 
 	def get_project_data(self):
 		savedata = read_settings('display_settings')

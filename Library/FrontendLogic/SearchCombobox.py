@@ -34,5 +34,6 @@ class ExtendedComboBox(QComboBox):
             return
         source_index = self.pFilterModel.mapToSource(completion_index)
         row = source_index.row()
+        print(row)
         self.setCurrentIndex(row)
 

@@ -284,7 +284,10 @@ class PlotWindow(QMainWindow):
             self.plot_stddev_errorbars(self.x, y, self.xkey, y_key, i, ax)
         self.Errorlabel.setText("")
         if self.Outliertest:
-            self.plotOutliers()
+            try:
+                self.plotOutliers()
+            except Exception as e:
+                print(f"Error plotting outliers: {e}")
         # host axis final formatting
         self.ax.set_xlabel(self.xlabel, fontsize=fontsize)
         self.ax.set_yticks([])
