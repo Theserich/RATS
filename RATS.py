@@ -1,3 +1,9 @@
+import sys
+import os
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, 'w')
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, 'w')
 from sys import argv, exit
 from PyQt5.QtWidgets import QApplication
 from Library.ProjectViewer.MainWindow import WidgetMain
