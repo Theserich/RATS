@@ -41,6 +41,7 @@ class PlotWindow(QMainWindow):
         self.Windowlen_edit.editingFinished.connect(self.plot)
         self.zscore_edit.editingFinished.connect(self.plot)
         QTimer.singleShot(100, self.adjust_initial_layout)
+        logger.info("Plot window initialized")
 
     def setOutliervalues(self):
         self.OutlierCheck.setChecked(self.Outliertest)
