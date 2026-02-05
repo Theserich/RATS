@@ -8,23 +8,9 @@ import matplotlib
 import faulthandler
 faulthandler.enable()
 matplotlib.use("Qt5Agg")
-import logging
-from Library.logging_setup import setup_root_logger, ModuleFilter
-from Library.QtlogHandler import QtLogHandler, JsonFileHandler
+from Library.logging_setup import ModuleFilter, setupRootLoggerandHandler
 
-qt_handler = QtLogHandler()
-file_handler = JsonFileHandler("application.log")
-
-# Add ModuleFilter to allow only your modules
-qt_handler.addFilter(ModuleFilter(["Library", "project_viewer"]))
-file_handler.addFilter(ModuleFilter(["Library", "project_viewer"]))
-
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.DEBUG)
-root_logger.propagate = True
-
-root_logger.addHandler(qt_handler)
-root_logger.addHandler(file_handler)
+root_logger,qt_handler,file_handler = setupRootLoggerandHandler()
 
 if __name__ == '__main__':
     try:

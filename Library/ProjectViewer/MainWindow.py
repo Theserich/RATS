@@ -35,7 +35,6 @@ class WidgetMain(QMainWindow):
 		self.settingsName = 'project_table_settings'
 		super(WidgetMain, self).__init__()
 		loadUi(path, self)
-		logger.addHandler(qt_handler)
 		self.loggerWindow = LoggerWindow(qt_handler, log_file="application.log", parent=self)
 		self.actionShowLogs.triggered.connect(self.loggerWindow.show)
 		self.DB = DBconnect()
@@ -142,6 +141,7 @@ class WidgetMain(QMainWindow):
 
 		self.table.setContextMenuPolicy(Qt.CustomContextMenu)
 		self.table.customContextMenuRequested.connect(self.open_Menu)
+		logger.info("ProjectViewer started")
 
 
 
@@ -384,7 +384,7 @@ class WidgetMain(QMainWindow):
 			logger.exception("Error in project_field_changed")
 		self.project_changing = False
 
-	@timer
+
 	def get_project_data(self):
 		savedata = read_settings('display_settings')
 		savedata['startProj'] = [self.user_id,self.selected_project]

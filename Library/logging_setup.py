@@ -1,5 +1,8 @@
 import logging
-
+import threading
+import sys
+import traceback
+from Library.QtlogHandler import QtLogHandler, JsonFileHandler
 
 class ModuleFilter(logging.Filter):
     def __init__(self, allowed_prefixes=None):
@@ -7,22 +10,41 @@ class ModuleFilter(logging.Filter):
         self.allowed_prefixes = allowed_prefixes or ["Library", "project_viewer"]
 
     def filter(self, record):
+        # Always allow ERROR or CRITICAL logs regardless of the module name
+        if record.levelno >= logging.ERROR:
+            return True
         return any(record.name.startswith(p) for p in self.allowed_prefixes)
 
-
-def setup_root_logger(qt_handler, file_handler, level=logging.DEBUG):
-    """
-    Setup the root logger with Qt + file handlers.
-    """
+def setupRootLoggerandHandler():
     root_logger = logging.getLogger()
-    root_logger.setLevel(level)
+    root_logger.setLevel(logging.DEBUG)
     root_logger.propagate = True
 
-    # Only add handlers once
-    if not any(isinstance(h, type(qt_handler)) for h in root_logger.handlers):
-        qt_handler.addFilter(ModuleFilter())
-        file_handler.addFilter(ModuleFilter())
-        root_logger.addHandler(qt_handler)
-        root_logger.addHandler(file_handler)
+    qt_handler = QtLogHandler()
+    file_handler = JsonFileHandler("application.log")
+    log_filter = ModuleFilter(["Library", "project_viewer"])
+    qt_handler.addFilter(log_filter)
+    file_handler.addFilter(log_filter)
 
-    return root_logger
+    root_logger.addHandler(qt_handler)
+    root_logger.addHandler(file_handler)
+
+    sys.excepthook = handle_exception
+    threading.excepthook = handle_thread_exception
+    return root_logger, qt_handler, file_handler
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logging.getLogger("project_viewer").critical(
+        "Uncaught exception",
+        exc_info=(exc_type, exc_value, exc_traceback)
+    )
+
+def handle_thread_exception(args):
+    # args.exc_info provides the (type, value, traceback) tuple
+    logging.getLogger("project_viewer").critical(
+        "Uncaught thread exception",
+        exc_info=(args.exc_type, args.exc_value, args.exc_traceback)
+    )

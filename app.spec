@@ -38,7 +38,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,
-    console=True,
+    console=False,
     onefile=True,
     icon=str(SPEC_DIR / "Ratimg.ico")
 )

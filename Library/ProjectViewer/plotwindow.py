@@ -22,13 +22,11 @@ logger.setLevel(logging.DEBUG)
 class PlotWindow(QMainWindow):
     def __init__(self, data, path=Path('UIFiles/Project_plotter.ui'), parent=None):
         self.data = data
-        logger.debug(f"Plotting data: {data}")
         self.widget = parent
         self.settingsWindow = False
         self.active_annotations = []
         super(QWidget, self).__init__(parent)
         loadUi(path, self)
-
         self.allaxes = []
         self.colors = ['orange', 'red', 'blue', 'green',
                        'mediumspringgreen', 'forestgreen', 'yellowgreen',

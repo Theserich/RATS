@@ -2,8 +2,10 @@ import logging
 import time
 import json
 import os
+import traceback
 from PyQt5.QtCore import QObject, pyqtSignal, Qt
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QComboBox, QLabel, QHBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QTableView, QTextEdit, QSplitter, QHeaderView, QHBoxLayout,QComboBox,QPushButton, QLabel, QAbstractItemView
+from Library.LogTableModel import LogModel
 
 class ModuleFilter(logging.Filter):
     def __init__(self, allowed_prefixes=None):
@@ -27,6 +29,12 @@ class JsonFileHandler(logging.Handler):
             "module": record.name,
             "message": record.getMessage(),
         }
+
+        if record.exc_info:
+            log_entry["exception"] = "".join(
+                traceback.format_exception(*record.exc_info)
+            )
+
         try:
             with open(self.filename, "a", encoding="utf-8") as f:
                 f.write(json.dumps(log_entry) + "\n")
@@ -50,100 +58,108 @@ class QtLogHandler(logging.Handler, QObject):
             "message": record.getMessage(),
             "module": record.name,
         }
+
+        if record.exc_info:
+            import traceback
+            log_entry["message"] += "\n" + "".join(
+                traceback.format_exception(*record.exc_info)
+            )
+
         self.log_signal.emit(log_entry)
 
 class LoggerWindow(QMainWindow):
     def __init__(self, handler, log_file="application.log", parent=None):
         super().__init__(parent)
         self.setWindowTitle("Application Logs")
-        self.resize(900, 450)
+        self.resize(1100, 600)
         self.handler = handler
-        self.handler.log_signal.connect(self.add_log)
-
-        self.all_logs = []
-        self.current_level = logging.DEBUG
         self.log_file = log_file
+        self.model = LogModel()
+        self.handler.log_signal.connect(self.add_log)
 
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
 
-        # Controls
+        # 1. Controls (Level Box & Clear)
         control_layout = QHBoxLayout()
-        layout.addLayout(control_layout)
         control_layout.addWidget(QLabel("Log Level:"))
         self.levelBox = QComboBox()
         self.levelBox.addItems(["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"])
-        self.levelBox.setCurrentText("DEBUG")
         self.levelBox.currentTextChanged.connect(self.change_level)
         control_layout.addWidget(self.levelBox)
+
         self.clearButton = QPushButton("Clear")
         self.clearButton.clicked.connect(self.clear_logs)
         control_layout.addWidget(self.clearButton)
         control_layout.addStretch()
+        layout.addLayout(control_layout)
 
-        # Table
-        self.table = QTableWidget()
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["Time", "Level", "Module", "Message"])
-        self.table.horizontalHeader().setStretchLastSection(True)
-        layout.addWidget(self.table)
+        # 2. Setup the Table View
+        self.table_view = QTableView()
+        self.table_view.setModel(self.model)
+        self.table_view.setWordWrap(False)
+        self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table_view.verticalHeader().setDefaultSectionSize(25)
+        self.table_view.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
 
-        # Load logs from file
-        self.prune_old_logs()
+        # Configure Header STRETCH
+        h_header = self.table_view.horizontalHeader()
+        h_header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        h_header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        h_header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        h_header.setSectionResizeMode(3, QHeaderView.Stretch)
+
+        self.table_view.clicked.connect(self.display_log_detail)
+
+        # 3. Setup Detail Box
+        self.detail_view = QTextEdit()
+        self.detail_view.setReadOnly(True)
+        self.detail_view.setStyleSheet("background-color: #f0f0f0; font-family: Consolas, monospace;")
+
+        # 4. CRASH FIX: Create Splitter and add widgets here ONLY
+        self.splitter = QSplitter(Qt.Vertical)
+        self.splitter.addWidget(self.table_view)
+        self.splitter.addWidget(self.detail_view)
+        self.splitter.setStretchFactor(0, 3)  # Table gets more space
+        self.splitter.setStretchFactor(1, 1)  # Box gets less space
+
+        # Add ONLY the splitter to the main layout
+        layout.addWidget(self.splitter)
+
         self.load_recent_logs()
+        self.prune_old_logs()
 
-    def add_log(self, log_entry):
-        if "levelno" not in log_entry:
-            log_entry["levelno"] = getattr(logging, log_entry["level"])
-        self.all_logs.append(log_entry)
-        self.refresh_table()
-
-    def refresh_table(self):
-        self.table.setRowCount(0)
-        for log in self.all_logs:
-            if log["levelno"] >= self.current_level:
-                row = self.table.rowCount()
-                self.table.insertRow(row)
-                self.table.setItem(row, 0, QTableWidgetItem(log["time"]))
-                self.table.setItem(row, 1, QTableWidgetItem(log["level"]))
-                self.table.setItem(row, 2, QTableWidgetItem(log["module"]))
-                self.table.setItem(row, 3, QTableWidgetItem(log["message"]))
-                color = None
-                if log["level"] == "ERROR":
-                    color = Qt.red
-                elif log["level"] == "WARNING":
-                    color = Qt.yellow
-                if color:
-                    for col in range(4):
-                        item = self.table.item(row, col)
-                        if item:
-                            item.setBackground(color)
-        self.table.scrollToBottom()
-
-    def clear_logs(self):
-        self.all_logs.clear()
-        self.table.setRowCount(0)
+    def display_log_detail(self, index):
+        # We need to get the log from the FILTERED list in the model
+        log = self.model._filtered_logs[index.row()]
+        msg = log.get("message", "")
+        exc = log.get("exception", "")
+        self.detail_view.setPlainText(f"{msg}\n\n{exc}" if exc else msg)
 
     def change_level(self, level_text):
-        self.current_level = getattr(logging, level_text)
-        logging.getLogger().setLevel(self.current_level)
-        self.refresh_table()
+        new_level = getattr(logging, level_text)
+        logging.getLogger().setLevel(new_level)
+        self.model.update_level(new_level)  # Update model filter
+
+    def add_log(self, log_entry):
+        self.model.add_log(log_entry)
+        self.table_view.scrollToBottom()
+
+    def clear_logs(self):
+        self.model.clear()
+        self.detail_view.clear()
+        if os.path.exists(self.log_file):
+            open(self.log_file, 'w').close()
 
     def load_recent_logs(self):
-        if not os.path.exists(self.log_file):
-            return
-        now = time.time()
-        one_day_ago = now - 86400
+        if not os.path.exists(self.log_file): return
         with open(self.log_file, "r", encoding="utf-8") as f:
             for line in f:
                 try:
-                    log = json.loads(line)
-                    if log["timestamp"] >= one_day_ago:
-                        self.all_logs.append(log)
-                except Exception:
+                    self.model.add_log(json.loads(line))
+                except:
                     continue
-        self.refresh_table()
 
     def prune_old_logs(self):
         if not os.path.exists(self.log_file):
