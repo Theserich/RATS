@@ -16,7 +16,6 @@ faulthandler.enable()
 matplotlib.use("Qt5Agg")
 from Library.logging_setup import ModuleFilter, setupRootLoggerandHandler
 
-
 root_logger,qt_handler,file_handler = setupRootLoggerandHandler()
 
 if __name__ == '__main__':
