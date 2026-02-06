@@ -31,6 +31,7 @@ from Library.QtlogHandler import LoggerWindow
 logger = logging.getLogger("project_viewer")
 
 class WidgetMain(QMainWindow):
+	@timer
 	def __init__(self, path, qt_handler):
 		self.settingsName = 'project_table_settings'
 		super(WidgetMain, self).__init__()
@@ -129,7 +130,6 @@ class WidgetMain(QMainWindow):
 			self.UserNrBox.setEnabled(False)
 			self.UserNameBox.setEnabled(False)
 		set_label_size(self, 'Mainwindow')
-
 		self.ProjectNameBox.currentIndexChanged.connect(lambda: self.project_field_changed(self.ProjectNameBox))
 		self.ProjectNrBox.currentIndexChanged.connect(lambda: self.project_field_changed(self.ProjectNrBox))
 		self.UserNrBox.currentIndexChanged.connect(lambda: self.user_field_changed(self.UserNrBox))
@@ -138,13 +138,9 @@ class WidgetMain(QMainWindow):
 		self.user_checkbox.toggled.connect(self.user_checkbox_toggled)
 		ctrlc = CopySelectedCellsAction(self)
 		self.addAction(ctrlc)
-
 		self.table.setContextMenuPolicy(Qt.CustomContextMenu)
 		self.table.customContextMenuRequested.connect(self.open_Menu)
 		logger.info("ProjectViewer started")
-
-
-
 
 
 
@@ -347,6 +343,7 @@ class WidgetMain(QMainWindow):
 
 		self.user_changing = False
 
+	@timer
 	def project_field_changed(self, combobox):
 		if self.user_changing or self.project_changing:
 			return
@@ -384,14 +381,14 @@ class WidgetMain(QMainWindow):
 			logger.exception("Error in project_field_changed")
 		self.project_changing = False
 
-
+	@timer
 	def get_project_data(self):
 		savedata = read_settings('display_settings')
 		savedata['startProj'] = [self.user_id,self.selected_project]
 		write_settings(savedata,'display_settings')
 		self.model.load_data(self.selected_project)
 
-
+	@timer
 	def get_project_nr(self, target_id):
 		query = "SELECT db_ams.target_v.project_nr, db_ams.target_v.user_nr FROM db_ams.target_v where db_ams.target_v.sample_id = '"+ str(target_id)+"';"
 		cnx = self.DB.getConnection()
@@ -438,7 +435,7 @@ def DB_call(DB,query,parameters=None):
 	if cnx != None: cnx.close()
 	return result
 
-
+@timer
 def get_all_projects(DB):
 	query = 'SELECT * FROM db_ams.project_t;'
 	data = DB_call(DB,query)

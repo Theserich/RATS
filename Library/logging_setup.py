@@ -15,6 +15,7 @@ class ModuleFilter(logging.Filter):
             return True
         return any(record.name.startswith(p) for p in self.allowed_prefixes)
 
+
 def setupRootLoggerandHandler():
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)

@@ -14,7 +14,7 @@ from Library.timer import timer
 # NEW: widgets used for dynamic host injection (safe even if you later edit the .ui)
 from PyQt5.QtWidgets import QLabel, QLineEdit, QHBoxLayout, QVBoxLayout
 
-
+@timer
 class DBconnect():
     def __init__(self):
         self.sql_settings = read_settings('sql')

@@ -41,7 +41,9 @@ class LogModel(QAbstractTableModel):
             if col == 3:
                 msg = log.get("message", "").replace('\n','')
                 exc = log.get("exception", "").replace('\n',' ')
-                return msg+': '+ exc
+                if exc != "":
+                    return msg+': '+ exc
+                return msg
         if role == Qt.ToolTipRole:
             msg = log.get("message", "")
             exc = log.get("exception", "")

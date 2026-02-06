@@ -3,17 +3,10 @@ import time
 import json
 import os
 import traceback
-from PyQt5.QtCore import QObject, pyqtSignal, Qt
+from PyQt5.QtCore import QObject, pyqtSignal, Qt, QTimer
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QTableView, QTextEdit, QSplitter, QHeaderView, QHBoxLayout,QComboBox,QPushButton, QLabel, QAbstractItemView
 from Library.LogTableModel import LogModel
 
-class ModuleFilter(logging.Filter):
-    def __init__(self, allowed_prefixes=None):
-        super().__init__()
-        self.allowed_prefixes = allowed_prefixes or ["Library", "project_viewer"]
-
-    def filter(self, record):
-        return any(record.name.startswith(p) for p in self.allowed_prefixes)
 
 class JsonFileHandler(logging.Handler):
     def __init__(self, filename="application.log"):
@@ -123,12 +116,11 @@ class LoggerWindow(QMainWindow):
         self.splitter.addWidget(self.detail_view)
         self.splitter.setStretchFactor(0, 3)  # Table gets more space
         self.splitter.setStretchFactor(1, 1)  # Box gets less space
-
-        # Add ONLY the splitter to the main layout
         layout.addWidget(self.splitter)
 
         self.load_recent_logs()
         self.prune_old_logs()
+        QTimer.singleShot(0, self.table_view.scrollToBottom)
 
     def display_log_detail(self, index):
         # We need to get the log from the FILTERED list in the model
@@ -143,8 +135,11 @@ class LoggerWindow(QMainWindow):
         self.model.update_level(new_level)  # Update model filter
 
     def add_log(self, log_entry):
+        # Only scroll if the scrollbar is already near the bottom
+        at_bottom = self.table_view.verticalScrollBar().value() > (self.table_view.verticalScrollBar().maximum() - 20)
         self.model.add_log(log_entry)
-        self.table_view.scrollToBottom()
+        if at_bottom:
+            self.table_view.scrollToBottom()
 
     def clear_logs(self):
         self.model.clear()

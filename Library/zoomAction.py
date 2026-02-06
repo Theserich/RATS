@@ -1,7 +1,9 @@
 from PyQt5.QtWidgets import QAction
 from Library.comset import read_settings, write_settings
 from Library.SignalEmitter import redrawSignal
+from Library.timer import timer
 
+@timer
 def init_zoom_action(widget,plotwindow=False):
 	zoom_in_Action = QAction('zoom',widget)
 	zoom_in_Action.setShortcut('Ctrl++')

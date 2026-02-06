@@ -5,27 +5,32 @@ if sys.stderr is None:
 if sys.stdout is None:
     sys.stdout = open(os.devnull, 'w')
 from sys import argv, exit
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QSplashScreen
 from Library.ProjectViewer.MainWindow import WidgetMain
 from pyqtgraph.Qt import QtCore
 from PyQt5.QtGui import QIcon
+from PyQt5.Qt import QPixmap, Qt
 from pathlib import Path
 import matplotlib
 import faulthandler
-faulthandler.enable()
 matplotlib.use("Qt5Agg")
-from Library.logging_setup import ModuleFilter, setupRootLoggerandHandler
+from Library.logging_setup import setupRootLoggerandHandler
+faulthandler.enable()
 
-root_logger,qt_handler,file_handler = setupRootLoggerandHandler()
 
 if __name__ == '__main__':
     try:
+        root_logger, qt_handler, file_handler = setupRootLoggerandHandler()
         QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
         QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
         app = QApplication(argv)
+        splash = QSplashScreen(QPixmap(str(Path('UIFiles/RATS_splash.png').resolve())))
+        splash.show()
+        splash.showMessage('Starting up', alignment=Qt.AlignBottom)
         widget = WidgetMain(Path('UIFiles/projectWindow.ui'), qt_handler)
         icon_path = Path("Ratimg.ico").resolve()
         app.setWindowIcon(QIcon(str(icon_path)))
+        splash.finish(widget)
         widget.show()
         app.setStyle('Fusion')
         exit(app.exec_())
