@@ -39,7 +39,7 @@ exe = EXE(
     strip=False,
     upx=False,
     console=False,
-    onefile=True,
+    onefile=False,
     icon=str(SPEC_DIR / "Ratimg.ico")
 )
 
