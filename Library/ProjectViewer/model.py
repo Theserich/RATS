@@ -1,7 +1,7 @@
 from PyQt5.Qt import QFont
 from PyQt5.QtCore import *
 from numpy import array, where, nan
-from Library.comset import read_settings,read_setttins_with_defaults
+from Library.comset import read_settings,read_setttings_with_defaults
 from Library.Settings.standardSettings import standard_table_settings
 from PyQt5.Qt import QFont, QColor
 
@@ -42,7 +42,7 @@ class MyTableModel(QAbstractTableModel):
 		self.parent().horizontalHeader().setStretchLastSection(True)
 
 	def load_table_settings(self):
-		self.table_settings = read_setttins_with_defaults(self.settingsName,standard_table_settings)
+		self.table_settings = read_setttings_with_defaults(self.settingsName, standard_table_settings)
 		self.fontsize = read_settings("display_settings")['fontsize']
 		self.columns = self.table_settings['columns']
 		self.headers = [self.table_settings[key]['Display Name'] for key in self.columns]

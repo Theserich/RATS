@@ -21,12 +21,19 @@ def setupRootLoggerandHandler():
     root_logger.setLevel(logging.DEBUG)
     root_logger.propagate = True
 
+    console_handler = logging.StreamHandler(sys.__stdout__)  # Use __stdout__ to bypass devnull
+    console_handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(levelname)s - %(name)s - %(message)s')
+    console_handler.setFormatter(formatter)
+
     qt_handler = QtLogHandler()
     file_handler = JsonFileHandler("application.log")
     log_filter = ModuleFilter(["Library", "project_viewer"])
     qt_handler.addFilter(log_filter)
     file_handler.addFilter(log_filter)
+    console_handler.addFilter(log_filter)
 
+    root_logger.addHandler(console_handler)
     root_logger.addHandler(qt_handler)
     root_logger.addHandler(file_handler)
 

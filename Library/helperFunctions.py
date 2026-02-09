@@ -99,6 +99,7 @@ def CE_BCE_format(x,pos):
         return f'{int(-x)} BCE'
     else: return f'{int(x)} CE'
 
+@timer
 def getIntcalData():
     df = read_excel(Path('Library/Data/Intcal20.xlsx'))
     data = {'Time': array(df['bp']), 'delta': array(df['Delta14C']), 'delta_sig': array(df['Sigm2']),

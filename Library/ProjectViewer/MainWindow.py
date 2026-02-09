@@ -1,6 +1,6 @@
 from PyQt5.uic import loadUi
 from PyQt5.Qt import Qt,QTimer
-from Library.comset import read_settings, write_settings, read_setttins_with_defaults
+from Library.comset import read_settings, write_settings, read_setttings_with_defaults
 from PyQt5.QtWidgets import QMenu
 from numpy import array, where
 from Library.FrontendLogic.SearchCombobox import ExtendedComboBox
@@ -168,7 +168,7 @@ class WidgetMain(QMainWindow):
 
 
 	def loadSettings(self):
-		self.settings = read_setttins_with_defaults('display_settings', standard_display_settings)
+		self.settings = read_setttings_with_defaults('display_settings', standard_display_settings)
 		for key in self.settings.keys():
 			if key not in standard_display_settings:
 				self.settings.pop(key)
@@ -232,7 +232,7 @@ class WidgetMain(QMainWindow):
 		super().closeEvent(event)
 
 	def change_width_settings(self):
-		table_settings = read_setttins_with_defaults(self.settingsName,standard_table_settings)
+		table_settings = read_setttings_with_defaults(self.settingsName, standard_table_settings)
 		for i, col in enumerate(self.model.columns):
 			width = self.table.columnWidth(i)
 			table_settings[col]['width'] = width

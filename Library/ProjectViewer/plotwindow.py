@@ -5,7 +5,7 @@ from pathlib import Path
 from PyQt5.Qt import Qt
 from PyQt5.uic import loadUi
 from Library.Settings.standardSettings import standard_proj_plot_Settings, windowsizes
-from Library.comset import read_settings, read_setttins_with_defaults, write_settings
+from Library.comset import read_settings, read_setttings_with_defaults, write_settings
 from numpy import array,isnan, where, nan
 import mplcursors
 from PyQt5.QtCore import QTimer
@@ -63,7 +63,7 @@ class PlotWindow(QMainWindow):
         self.settingsWindow.show()
 
     def closeEvent(self, event):
-        windowsettings = read_setttins_with_defaults('windowsizes', windowsizes)
+        windowsettings = read_setttings_with_defaults('windowsizes', windowsizes)
         windowsettings['plotwindow']['height'] = self.height()
         windowsettings['plotwindow']['width'] = self.width()
         write_settings(windowsettings,'windowsizes')
@@ -86,11 +86,11 @@ class PlotWindow(QMainWindow):
 
     def load_plot_settings(self):
         self.display_settings = read_settings('display_settings')
-        self.windowsettings = read_setttins_with_defaults('windowsizes',windowsizes)
+        self.windowsettings = read_setttings_with_defaults('windowsizes', windowsizes)
         height = self.windowsettings['plotwindow']['height']
         width = self.windowsettings['plotwindow']['width']
         self.resize(width, height)
-        settings = read_setttins_with_defaults('proj_plot_Settings', standard_proj_plot_Settings)
+        settings = read_setttings_with_defaults('proj_plot_Settings', standard_proj_plot_Settings)
         for key in settings:
             self.__dict__[key] = settings[key]
 

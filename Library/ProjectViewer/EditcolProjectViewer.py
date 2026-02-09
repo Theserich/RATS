@@ -1,6 +1,6 @@
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog,QAbstractItemView,QMessageBox, QTableView, QTableWidgetItem
-from Library.comset import read_settings, write_settings, read_setttins_with_defaults
+from Library.comset import read_settings, write_settings, read_setttings_with_defaults
 from Library.FrontendLogic.SearchCombobox import ExtendedComboBox
 from numpy import array
 from PyQt5.QtWidgets import QFileDialog
@@ -23,7 +23,7 @@ class better_table_edit:
         self.settings = ['Display Name','Format','Multiplier']
         self.N_settings = len(self.settings)
         self.model = self.window.model
-        self.table_settings = read_setttins_with_defaults(self.settingsName, standard_display_settings)
+        self.table_settings = read_setttings_with_defaults(self.settingsName, standard_display_settings)
         self.columns = self.table_settings['columns']
         self.fill_tablevals()
         self.possible = Mainwindow.model.data.keys()
