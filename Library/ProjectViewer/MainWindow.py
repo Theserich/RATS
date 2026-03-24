@@ -142,8 +142,6 @@ class WidgetMain(QMainWindow):
 		self.table.customContextMenuRequested.connect(self.open_Menu)
 		logger.info("ProjectViewer started")
 
-
-
 	def save_to_excel(self):
 		# Open save dialog
 		file_path, _ = QFileDialog.getSaveFileName(
@@ -166,7 +164,6 @@ class WidgetMain(QMainWindow):
 		except Exception as e:
 			QMessageBox.critical(self, "Error", f"Failed to save Excel file:\n{e}")
 
-
 	def loadSettings(self):
 		self.settings = read_setttings_with_defaults('display_settings', standard_display_settings)
 		for key in self.settings.keys():
@@ -180,7 +177,6 @@ class WidgetMain(QMainWindow):
 		height = self.settings['windowheight']
 		width = self.settings['windowwidth']
 		self.resize(width,height)
-
 
 	def showEvent(self, event):
 		super().showEvent(event)

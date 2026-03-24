@@ -22,6 +22,8 @@ logger.setLevel(logging.DEBUG)
 class PlotWindow(QMainWindow):
     def __init__(self, data, path=Path('UIFiles/Project_plotter.ui'), parent=None):
         self.data = data
+        self.activinds = where(data['stop'] == 0)[0]
+        self.stoppedinds = where(data['stop'] == 1)[0]
         self.widget = parent
         self.settingsWindow = False
         self.active_annotations = []
@@ -117,6 +119,8 @@ class PlotWindow(QMainWindow):
     def plotOutliers(self):
 
         testdata = deepcopy(self.data)
+        for key in testdata:
+            testdata[key] = testdata[key][self.activinds]
         for key in ['fm','fm_sig','user_label_nr']:
             for i, value in enumerate(testdata[key]):
                 try:
@@ -125,7 +129,7 @@ class PlotWindow(QMainWindow):
                     testdata[key][i] = nan
             testdata[key] = array(testdata[key],dtype=float)
 
-        x = self.x
+        x = self.x[self.activinds]
         for major_key in ['fm','fm_sig','user_label_nr']:
             nonaninds = where(~isnan(testdata[major_key]))[0]
             x = x[nonaninds]
@@ -210,7 +214,9 @@ class PlotWindow(QMainWindow):
             self.allaxes.append(ax)
 
             # plot the data
-            line, = ax.plot(self.x, y, self.forms[i], color=self.ycolors[i], label=y_key)
+            line, = ax.plot(self.x, y, self.forms[i], color=self.ycolors[i], label=y_key,alpha=0)
+            ax.plot(self.x[self.activinds], y[self.activinds], self.forms[i], color=self.ycolors[i], label=y_key)
+            ax.plot(self.x[self.stoppedinds], y[self.stoppedinds], self.forms[i], color='grey', label=y_key)
             cursor = mplcursors.cursor(line, hover=True)
             annotations = self.active_annotations
             @cursor.connect("add")
@@ -260,29 +266,16 @@ class PlotWindow(QMainWindow):
             if bbox_pixels is None:
                 # make a minimal bbox in pixels
                 bbox_pixels = type('B', (), {'width': 0.0})()
-
-            # add padding in pixels (convert a small point padding to pixels)
             padding_pixels = (base_padding_points * self.fig.dpi) / 72.0  # points -> pixels
             width_pixels = getattr(bbox_pixels, "width", 0.0) + padding_pixels
-
-            # convert pixels -> points (Matplotlib 'outward' amount is in points)
             width_points = width_pixels * 72.0 / self.fig.dpi
-
-            # compute the offset to set for this axis's spine
-            # we want this axis to be placed outward by cumulative_offset + width of previous axes
-            # so for the first created twin axis we add base padding as well
             offset_points = cumulative_offset_points + base_padding_points
-
-            # set the spine position outward by offset_points (units: points)
             try:
                 ax.spines['right'].set_position(('outward', offset_points+i*fontsize*1.5))
             except Exception:
                 # Some Matplotlib configurations may not allow direct spine move; ignore gracefully
                 pass
-
-            # after positioning, update cumulative_offset for the next axis:
             cumulative_offset_points += width_points
-            # attach errorbars & mplcursors if available
             self.plot_stddev_errorbars(self.x, y, self.xkey, y_key, i, ax)
         self.Errorlabel.setText("")
         if self.Outliertest:
@@ -325,15 +318,24 @@ class PlotWindow(QMainWindow):
                 ysig = array([float(val) for val in ysig])
             except Exception:
                 ysig = self.data[ysig_key]
-            ax.errorbar(x, y, fmt=self.forms[i], xerr=xsig, yerr=ysig, color=self.ycolors[i], capsize=3)
+            ax.errorbar(x[self.activinds], y[self.activinds], fmt=self.forms[i], xerr=xsig[self.activinds], yerr=ysig[self.activinds], color=self.ycolors[i], capsize=3)
+            ax.errorbar(x[self.stoppedinds], y[self.stoppedinds], fmt=self.forms[i], xerr=xsig[self.stoppedinds], yerr=ysig[self.stoppedinds], color='grey', capsize=3)
         elif ysig_key in keys:
             ysig = self.data[ysig_key]
             try:
                 ysig = array([float(val) for val in ysig])
             except Exception:
                 ysig = self.data[ysig_key]
-
-            ax.errorbar(x, y, fmt=self.forms[i], yerr=ysig, color=self.ycolors[i], capsize=3)
+            ax.errorbar(x[self.activinds], y[self.activinds], fmt=self.forms[i], yerr=ysig[self.activinds], color=self.ycolors[i], capsize=3)
+            ax.errorbar(x[self.stoppedinds], y[self.stoppedinds], fmt=self.forms[i], yerr=ysig[self.stoppedinds], color='grey', capsize=3)
+        elif xsig_key in keys:
+            xsig = self.data[xsig_key]
+            try:
+                xsig = array([float(val) for val in xsig])
+            except Exception:
+                xsig = self.data[ysig_key]
+            ax.errorbar(x[self.activinds], y[self.activinds], fmt=self.forms[i], xerr=xsig[self.activinds], color=self.ycolors[i], capsize=3)
+            ax.errorbar(x[self.stoppedinds], y[self.stoppedinds], fmt=self.forms[i], xerr=xsig[self.stoppedinds], color='grey', capsize=3)
 
     def initialize_plot(self):
         p = self.plot_widget.palette()
