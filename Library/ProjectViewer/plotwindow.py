@@ -6,7 +6,7 @@ from PyQt5.Qt import Qt
 from PyQt5.uic import loadUi
 from Library.Settings.standardSettings import standard_proj_plot_Settings, windowsizes
 from Library.comset import read_settings, read_setttings_with_defaults, write_settings
-from numpy import array,isnan, where, nan
+from numpy import array,isnan, where, nan, abs as npabs
 import mplcursors
 from PyQt5.QtCore import QTimer
 from matplotlib.backends.backend_qt5agg import (
@@ -185,15 +185,19 @@ class PlotWindow(QMainWindow):
             return
 
         self.x = self.data[self.xkey]
+        print(len(self.x))
         try:
             self.x = array([float(v) for v in self.x])
         except Exception:
-            if self.xkey == 'timedat':
+            if self.xkey == 'target_pressed':
                 from datetime import datetime
-                self.x = [datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
-                     for val in self.data[self.xkey]]
+                self.x = array([
+                    datetime.strptime(val, '%Y-%m-%d') if str(val) != 'nan' else None
+                    for val in self.data[self.xkey]
+                ], dtype=object)
             else:
                 self.x = self.data[self.xkey]
+        print(len(self.x))
 
         # cumulative outward offset (in points). we'll increment it after measuring each axis.
         cumulative_offset_points = 0.0
@@ -318,16 +322,16 @@ class PlotWindow(QMainWindow):
                 ysig = array([float(val) for val in ysig])
             except Exception:
                 ysig = self.data[ysig_key]
-            ax.errorbar(x[self.activinds], y[self.activinds], fmt=self.forms[i], xerr=xsig[self.activinds], yerr=ysig[self.activinds], color=self.ycolors[i], capsize=3)
-            ax.errorbar(x[self.stoppedinds], y[self.stoppedinds], fmt=self.forms[i], xerr=xsig[self.stoppedinds], yerr=ysig[self.stoppedinds], color='grey', capsize=3)
+            ax.errorbar(x[self.activinds], y[self.activinds], fmt=self.forms[i], xerr=xsig[self.activinds], yerr=npabs(ysig[self.activinds]), color=self.ycolors[i], capsize=3)
+            ax.errorbar(x[self.stoppedinds], y[self.stoppedinds], fmt=self.forms[i], xerr=xsig[self.stoppedinds], yerr=npabs(ysig[self.stoppedinds]), color='grey', capsize=3)
         elif ysig_key in keys:
             ysig = self.data[ysig_key]
             try:
                 ysig = array([float(val) for val in ysig])
             except Exception:
                 ysig = self.data[ysig_key]
-            ax.errorbar(x[self.activinds], y[self.activinds], fmt=self.forms[i], yerr=ysig[self.activinds], color=self.ycolors[i], capsize=3)
-            ax.errorbar(x[self.stoppedinds], y[self.stoppedinds], fmt=self.forms[i], yerr=ysig[self.stoppedinds], color='grey', capsize=3)
+            ax.errorbar(x[self.activinds], y[self.activinds], fmt=self.forms[i], yerr=npabs(ysig[self.activinds]), color=self.ycolors[i], capsize=3)
+            ax.errorbar(x[self.stoppedinds], y[self.stoppedinds], fmt=self.forms[i], yerr=npabs(ysig[self.stoppedinds]), color='grey', capsize=3)
         elif xsig_key in keys:
             xsig = self.data[xsig_key]
             try:
