@@ -32,7 +32,7 @@ jobs:
         run: pyinstaller --noconfirm app.spec
 
       - name: Compile Inno Setup Installer
-        uses: aminnairi/inno-setup-action@v1
+        uses: JonGalloway/checkbox-inno-setup@v1.0
         with:
           path: installer.iss
 
