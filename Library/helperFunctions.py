@@ -21,7 +21,7 @@ def calcD14C(df):
     newdf['c14_age_sig'] = 8033/newdf['fm']*newdf['fm_sig']
     return newdf
 
-def outlierTest(df, ntest=4, problim=0.001,sigmathresh=4,ratio=0.8):
+def outlierTest(df, ntest=4, problim=0.001,sigmathresh=4,ratio=0.9):
     if len(df['user_label_nr']) < ntest:
         return array([]),array([]),array([]),array([]),df
     countdict = {}

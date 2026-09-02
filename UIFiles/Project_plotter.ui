@@ -28,6 +28,20 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Ntest</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QLabel" name="Errorlabel">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
         <widget class="QSpinBox" name="Windowlen_edit">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;length of the sliding window over 'userlabel_nr'&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -40,7 +54,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="0" column="3">
         <widget class="QDoubleSpinBox" name="pval_edit">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;p-value limit of failed chisquared test over the window&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -60,6 +74,20 @@
         </widget>
        </item>
        <item row="0" column="2">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>pvalthresh</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Zscorethresh</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
         <widget class="QDoubleSpinBox" name="zscore_edit">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;z-value factor threshold&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -72,13 +100,6 @@
          </property>
          <property name="singleStep">
           <double>0.100000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="3">
-        <widget class="QLabel" name="Errorlabel">
-         <property name="text">
-          <string/>
          </property>
         </widget>
        </item>
@@ -116,7 +137,7 @@
      <x>0</x>
      <y>0</y>
      <width>933</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

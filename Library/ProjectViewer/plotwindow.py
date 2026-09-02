@@ -185,7 +185,6 @@ class PlotWindow(QMainWindow):
             return
 
         self.x = self.data[self.xkey]
-        print(len(self.x))
         try:
             self.x = array([float(v) for v in self.x])
         except Exception:
@@ -197,7 +196,6 @@ class PlotWindow(QMainWindow):
                 ], dtype=object)
             else:
                 self.x = self.data[self.xkey]
-        print(len(self.x))
 
         # cumulative outward offset (in points). we'll increment it after measuring each axis.
         cumulative_offset_points = 0.0

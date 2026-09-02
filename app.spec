@@ -13,10 +13,13 @@ datas = []
 
 a = Analysis(
     ['RATS.py'],
-    pathex=[str(SPEC_DIR)],
+    pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=[],
+    hiddenimports=[
+        'requests',
+        'urllib3'
+    ],
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
