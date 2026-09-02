@@ -31,10 +31,12 @@ jobs:
       - name: Build executable
         run: pyinstaller --noconfirm app.spec
 
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
       - name: Compile Inno Setup Installer
-        uses: JonGalloway/checkbox-inno-setup@v1.0
-        with:
-          path: installer.iss
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
       - name: Prepare zip contents
         run: |
