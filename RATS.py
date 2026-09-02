@@ -24,7 +24,7 @@ from Library.logging_setup import setupRootLoggerandHandler
 faulthandler.enable()
 
 
-CURRENT_VERSION = os.getenv("APP_VERSION", "v1.0.9")
+CURRENT_VERSION = os.getenv("APP_VERSION", "v1.0.10")
 GITHUB_REPO = "Theserich/RATS"
 
 
