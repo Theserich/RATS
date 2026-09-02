@@ -31,7 +31,6 @@ GITHUB_REPO = "Theserich/RATS"
 # Use QThread instead of threading.Thread for Qt thread-safety
 class UpdateCheckerThread(QtCore.QThread):
     update_available = QtCore.pyqtSignal(str, str)
-
     def run(self):
         try:
             url = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
@@ -41,7 +40,6 @@ class UpdateCheckerThread(QtCore.QThread):
                 data = res.json()
                 latest_tag = data.get("tag_name")
                 release_url = data.get("html_url")
-
                 if latest_tag and latest_tag.lstrip('v') != CURRENT_VERSION.lstrip('v'):
                     self.update_available.emit(latest_tag, release_url)
         except Exception:
