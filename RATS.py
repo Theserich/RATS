@@ -49,7 +49,6 @@ class UpdateCheckerThread(QtCore.QThread):
             pass  # Ignore network issues during startup update check
 
 
-
 def prompt_for_update(version, url):
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Information)
