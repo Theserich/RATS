@@ -1,5 +1,10 @@
 #define MyAppName "RATS"
-#define MyAppVersion "1.0.0"
+; MyAppVersion is normally passed in by CI via:
+;   ISCC.exe /DMyAppVersion="1.0.1" installer.iss
+; The hardcoded value below is only a fallback for local/manual compiles.
+#ifndef MyAppVersion
+  #define MyAppVersion "1.0.0"
+#endif
 #define MyAppPublisher "Theserich"
 #define MyAppURL "https://github.com/Theserich/RATS"
 #define MyAppExeName "app.exe"

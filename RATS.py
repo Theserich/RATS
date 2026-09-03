@@ -24,7 +24,38 @@ from Library.logging_setup import setupRootLoggerandHandler
 faulthandler.enable()
 
 
-CURRENT_VERSION = os.getenv("APP_VERSION", "v1.0.10")
+def get_version():
+    """
+    Resolve the app version at runtime.
+
+    Priority:
+    1. VERSION.txt bundled next to the frozen exe (written by CI from the git tag).
+    2. VERSION.txt next to this script (useful when running from source).
+    3. Fallback hardcoded default.
+
+    Note: we deliberately do NOT use os.getenv("APP_VERSION") here. Setting an
+    env var during the GitHub Actions build does not bake it into the frozen
+    PyInstaller binary - os.getenv only ever sees variables present on the
+    machine actually running the exe, which won't have APP_VERSION set. A
+    bundled data file is the only reliable way to carry the build-time
+    version into the shipped app.
+    """
+    try:
+        if hasattr(sys, "_MEIPASS"):
+            base = Path(sys._MEIPASS)
+        elif getattr(sys, "frozen", False):
+            base = Path(sys.executable).resolve().parent
+        else:
+            base = Path(__file__).resolve().parent
+        version_file = base / "VERSION.txt"
+        if version_file.exists():
+            return version_file.read_text(encoding="utf-8").strip()
+    except Exception:
+        pass
+    return "v1.0.1"
+
+
+CURRENT_VERSION = get_version()
 GITHUB_REPO = "Theserich/RATS"
 
 
