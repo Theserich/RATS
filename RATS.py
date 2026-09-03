@@ -52,7 +52,7 @@ def get_version():
             return version_file.read_text(encoding="utf-8").strip()
     except Exception:
         pass
-    return "v1.0.1"
+    return "v1.1.0"
 
 
 CURRENT_VERSION = get_version()
