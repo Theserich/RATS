@@ -106,7 +106,7 @@ NAN_KEY = NaNSentinel()
 
 allcolormaps = ['Set1','Reds','cool', 'coolwarm', 'gray', 'hot','hot_r', 'jet','jet_r', 'nipy_spectral','nipy_spectral_r', 'ocean']
 
-standardsettings = {'window': {'size': [2116, 1112], 'pos': [1717, 18]}, 't0': 1500, 't1': 2000, 'bp': False, 'stopped': False, 'sortkey': 'treeid','colormap':'nipy_spectral','legend':True}
+
 
 class CurveWindow(QMainWindow):
     def __init__(self, path=Path("UIFiles/CalibrationPlot.ui"), parent=None):
@@ -147,7 +147,7 @@ class CurveWindow(QMainWindow):
                 del self.legend
 
     def load_settings(self):
-        settings = read_setttings_with_defaults('curve_settings', standardsettings)
+        settings = read_settings('curve_settings')
         self.resize(*settings["window"]["size"])
         self.move(*settings["window"]["pos"])
         self.t0_edit.setValue(settings["t0"])

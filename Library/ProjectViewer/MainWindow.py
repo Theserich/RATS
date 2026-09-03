@@ -1,6 +1,6 @@
 from PyQt5.uic import loadUi
 from PyQt5.Qt import Qt,QTimer
-from Library.comset import read_settings, write_settings, read_setttings_with_defaults
+from Library.comset import read_settings, write_settings
 from PyQt5.QtWidgets import QMenu
 from numpy import array, where
 from Library.FrontendLogic.SearchCombobox import ExtendedComboBox
@@ -165,13 +165,7 @@ class WidgetMain(QMainWindow):
 			QMessageBox.critical(self, "Error", f"Failed to save Excel file:\n{e}")
 
 	def loadSettings(self):
-		self.settings = read_setttings_with_defaults('display_settings', standard_display_settings)
-		for key in self.settings.keys():
-			if key not in standard_display_settings:
-				self.settings.pop(key)
-		for key in standard_display_settings.keys():
-			if key not in self.settings.keys():
-				self.settings[key] = standard_display_settings[key]
+		self.settings = read_settings('display_settings')
 		[self.start_user_nr, self.start_proj_nr] = self.settings['startProj']
 		self.selected_project = int(self.start_proj_nr)
 		height = self.settings['windowheight']
@@ -228,7 +222,7 @@ class WidgetMain(QMainWindow):
 		super().closeEvent(event)
 
 	def change_width_settings(self):
-		table_settings = read_setttings_with_defaults(self.settingsName, standard_table_settings)
+		table_settings = read_settings(self.settingsName)
 		for i, col in enumerate(self.model.columns):
 			width = self.table.columnWidth(i)
 			table_settings[col]['width'] = width

@@ -64,14 +64,17 @@ if __name__ == '__main__':
         QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
         app = QApplication(argv)
 
-        # Initialize update checker thread and parent it to app to prevent garbage collection
+        # Show splash screen immediately
+        splash = QSplashScreen(QPixmap(str(Path('UIFiles/RATS_splash.png').resolve())))
+        splash.show()
+        splash.showMessage('Starting up', alignment=Qt.AlignBottom)
+        app.processEvents()  # force the splash to paint before we do anything else
+
+        # Now kick off the update checker (runs in background, won't block splash)
         update_thread = UpdateCheckerThread(app)
         update_thread.update_available.connect(prompt_for_update)
         update_thread.start()
 
-        splash = QSplashScreen(QPixmap(str(Path('UIFiles/RATS_splash.png').resolve())))
-        splash.show()
-        splash.showMessage('Starting up', alignment=Qt.AlignBottom)
         widget = WidgetMain(Path('UIFiles/projectWindow.ui'), qt_handler)
         icon_path = Path("Ratimg.ico").resolve()
         app.setWindowIcon(QIcon(str(icon_path)))
